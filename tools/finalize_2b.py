@@ -60,9 +60,9 @@ D22 = """I read the full answer, the expected answer and the three chunks for **
 * correct 3: Q4, Q5, and Q9 (it gives the initial action the question asks for: a confidential preliminary enquiry involving the complainant within 3 days);
 * partly correct 3: Q1 and Q2 each miss or misstate part of the answer; Q10 says the preliminary enquiry is conducted by Corporate HR, which the policy does not state, and omits its 3-day limit;
 * wrong 4: Q3, Q6, Q7, Q8;
-* supported 8 of 10.
+* supported 7 of 10 (every statement must be supported by the chunks).
 
-Q1 is not supported: it attributes Bajaj Broking's employee list (chunk [2]) to Niramai. Q6 is not supported: its "broader oversight" claim is not in the chunks. The judge's counts were 0 / 9 / 1, and 9 of 10 supported. A larger judge (Llama-3.1-8B, selectable with `JUDGE=` when there is enough disk) would be the first improvement to try."""
+Q1 is not supported: it attributes Bajaj Broking's employee list (chunk [2]) to Niramai. Q6 is not supported: its "broader oversight" claim is not in the chunks. Q10 is not supported: chunk [1] says the preliminary enquiry "will be conducted by involving the complainant" and names Corporate HR only as the hotline that receives complaints ("Hotline Number 77666- Corporate HR"); no chunk says Corporate HR conducts the preliminary enquiry. The judge's counts were 0 / 9 / 1, and 9 of 10 supported. A larger judge (Llama-3.1-8B, selectable with `JUDGE=` when there is enough disk) would be the first improvement to try."""
 
 D23 = """**Chosen failure: Q7 (judged wrong). The cause is reranking.** The trace shows the span chunk 652 at **rank 1 in BM25's top 10**, but it is **not in the final 3** after reranking. The cross-encoder ranked JioStar chunk 646, a Bajaj Broking chunk (59) and JioStar chunk 645 above it.
 

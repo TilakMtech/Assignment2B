@@ -9982,9 +9982,9 @@ UNSUPPORTED: &lt;exact quote of the first unsupported statement, or none&gt;
 <li>correct 3: Q4, Q5, and Q9 (it gives the initial action the question asks for: a confidential preliminary enquiry involving the complainant within 3 days);</li>
 <li>partly correct 3: Q1 and Q2 each miss or misstate part of the answer; Q10 says the preliminary enquiry is conducted by Corporate HR, which the policy does not state, and omits its 3-day limit;</li>
 <li>wrong 4: Q3, Q6, Q7, Q8;</li>
-<li>supported 8 of 10.</li>
+<li>supported 7 of 10 (every statement must be supported by the chunks).</li>
 </ul>
-<p>Q1 is not supported: it attributes Bajaj Broking's employee list (chunk [2]) to Niramai. Q6 is not supported: its "broader oversight" claim is not in the chunks. The judge's counts were 0 / 9 / 1, and 9 of 10 supported. A larger judge (Llama-3.1-8B, selectable with <code>JUDGE=</code> when there is enough disk) would be the first improvement to try.</p>
+<p>Q1 is not supported: it attributes Bajaj Broking's employee list (chunk [2]) to Niramai. Q6 is not supported: its "broader oversight" claim is not in the chunks. Q10 is not supported: chunk [1] says the preliminary enquiry "will be conducted by involving the complainant" and names Corporate HR only as the hotline that receives complaints ("Hotline Number 77666- Corporate HR"); no chunk says Corporate HR conducts the preliminary enquiry. The judge's counts were 0 / 9 / 1, and 9 of 10 supported. A larger judge (Llama-3.1-8B, selectable with <code>JUDGE=</code> when there is enough disk) would be the first improvement to try.</p>
 <h3 id="D2.3-Find-the-cause-(1-mark)">D2.3 Find the cause (1 mark)<a class="anchor-link" href="#D2.3-Find-the-cause-(1-mark)">¶</a></h3><p>For every query, the table below traces where the complete answer span was lost. There are three possible causes:</p>
 <ul>
 <li><strong>Candidate retrieval:</strong> the span is not in the best method's top 10, so the reranker never saw it.</li>
