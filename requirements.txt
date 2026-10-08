@@ -1,0 +1,6 @@
+# Assignment 2B additions to the Assignment 1 venv (torch, transformers, peft, bitsandbytes, accelerate already installed)
+faiss-cpu>=1.8
+rank_bm25>=0.2.2
+sentence-transformers>=5.0
+nbclient
+nbconvert
