@@ -8558,8 +8558,8 @@ These rows use the dense top 3 of each size. D1 repeats the check for the exact 
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="B4.-Which-method-works-best-and-why,-with-one-example-query-(1-mark)">B4. Which method works best and why, with one example query (1 mark)<a class="anchor-link" href="#B4.-Which-method-works-best-and-why,-with-one-example-query-(1-mark)">¶</a></h3><p><strong>BM25 works best:</strong> hit rate@1 70%, @3 90%, @5 90%, against 50 / 70 / 80 for dense search and 60 / 80 / 80 for hybrid. It is also the fastest (1.96 ms per query).</p>
-<p>The queries name specific organisations and use the policies' own terms, such as "verbal complaint", "JioStar" and "Aurobindo". Exact keyword matching rewards these terms. The small general-purpose embedding model instead finds chunks that are similar in topic, and many policies in this corpus share topics (for example, five different harassment policies).</p>
-<p><strong>Example, Q5</strong> ("How is a verbal sexual-harassment complaint converted for formal handling at Bajaj Broking?"): BM25 ranks the span chunk 2nd, because it contains the exact words "verbal complaint", "converted" and "written complaint". Dense search does not have it in its top 5; it returns other harassment-procedure chunks. Hybrid search does not have it in its top 5 either: the dense ranking pushes it below rank 5 in the fusion. Hybrid helps only when both methods rank the chunk fairly high.</p>
+<p>A likely reason, not tested separately: the queries name specific organisations and use the policies' own terms, such as "verbal complaint", "JioStar" and "Aurobindo". Exact keyword matching rewards these terms. The small general-purpose embedding model may instead favour chunks that are similar in topic, and many policies in this corpus share topics (for example, five different harassment policies).</p>
+<p><strong>Example, Q5</strong> ("How is a verbal sexual-harassment complaint converted for formal handling at Bajaj Broking?"): BM25 ranks the span chunk 2nd, because it contains the exact words "verbal complaint", "converted" and "written complaint". Dense search does not have it in its top 5; it returns other harassment-procedure chunks. In this run, RRF did not improve over BM25 and pushed Q5's relevant chunk below the top five.</p>
 </div>
 </div>
 </div>
@@ -8865,7 +8865,7 @@ These rows use the dense top 3 of each size. D1 repeats the check for the exact 
 <li><strong>Q3 got worse at rank 1:</strong> a talent-development chunk about course-fee support ("financial support", "75%") took first place, and the laptop-policy span chunk moved to rank 2. It is still in the top 3.</li>
 <li><strong>Q7 was lost:</strong> BM25 ranked the span chunk 652 first, but the cross-encoder put two other JioStar chunks (646, 645) and a Bajaj chunk above it, so it fell out of the top 3.</li>
 </ul>
-<p>The reranker (ms-marco-MiniLM-L-6-v2) was trained on web search questions. It rewards chunks that sound like an answer to the question in general, and it does not know that the organisation name matters. BM25's exact term matching was already the stronger signal for this corpus.</p>
+<p>These experiments do not show why. One possible explanation is that the reranker (ms-marco-MiniLM-L-6-v2) was trained on web search questions, so it may favour chunks that sound like a general answer and give little weight to the organisation name. In Q7, it ranked a Bajaj Broking chunk above the JioStar span chunk. In this run, BM25's exact term matching was the stronger ranking signal.</p>
 </div>
 </div>
 </div>
@@ -9188,11 +9188,11 @@ A1 model: cites a chunk in 0/11 answers; says 'Not found' for the out-of-corpus 
 <p><strong>Problem observed with the Assignment 1 model, and the switch.</strong> The Assignment 1 model (TinyLlama-1.1B with the CPT and Adapter B) is shown with the answers saved from its trial run. Its model files are no longer on the lab disk, so it could not be run again with the revised prompt. <strong>That trial used 500-token chunks and prompt version 1</strong> (before the sentence on chunk labels was added). Both are stated in the table above, and its prompts were rebuilt exactly to count tokens with its own tokenizer.</p>
 <p><strong>Problems observed:</strong></p>
 <ol>
-<li><strong>The context is too long for the model.</strong> TinyLlama has a 2,048-token context. The prompts of Q2, Q5 and Q6 are 2,165–2,195 tokens, so they exceed the limit before any answer is written. These are exactly the answers that break down into repeated or meaningless text (Q2: "The mechanism… The purchase…"). Q4 (2,040 tokens, leaving 8 for the answer) repeats one sentence. Only Q8 leaves the 200 answer tokens. This is evidence that the overlong context contributed to the failures.</li>
+<li><strong>The prompts are too long for the model's context, a confounding factor.</strong> TinyLlama has a 2,048-token context. The prompts of Q2, Q5 and Q6 are 2,165–2,195 tokens, so they exceed the limit before any answer is written. These are the three answers that break down into repeated or meaningless text (Q2: "The mechanism… The purchase…"). Q4 (2,040 tokens, leaving 8 for the answer) repeats one sentence. Only Q8 leaves the 200 answer tokens. The match is consistent with the overlong context contributing to the repetition, but it does not prove the cause: prompt length is confounded with the model and the prompt version. A rerun with prompts trimmed to fit the context would separate these, but <strong>no such rerun was performed</strong>, because the model files are no longer available.</li>
 <li><strong>It does not use the chunks even when the prompt fits.</strong> It cites no chunk in any of the 11 answers. Q8, the one prompt that fits, gives a plausible answer, but it cites nothing and adds details ("retaliation against witnesses") that are not in the span.</li>
 <li><strong>It invents an answer for the out-of-corpus query.</strong> For Q11 it describes a pet-friendly office with a leash rule. No such policy exists in the corpus.</li>
 </ol>
-<p>The model was trained to answer HR questions from its own memory, not to follow a context-and-citation instruction. It is also too small for that task. <strong>Switch:</strong> the generator is Qwen2.5-3B-Instruct (4-bit), which has a 32,768-token context and is instruction-tuned. A 7B/8B model was preferred but did not fit the lab disk (4.9 GB home volume). With 400-token chunks, the longest Qwen prompt is 1,764 tokens including 200 answer tokens.</p>
+<p>Possible explanations, which these experiments do not test: the model was fine-tuned to answer HR questions from its own memory, not to follow a context-and-citation instruction; and a 1.1B model may have too little capacity for such instructions. Whatever the cause, it does not meet the requirements of this pipeline (use the chunks, cite them, say "Not found"). <strong>Switch:</strong> the generator is Qwen2.5-3B-Instruct (4-bit), which has a 32,768-token context and is instruction-tuned. A 7B/8B model was preferred but did not fit the lab disk (4.9 GB home volume). With 400-token chunks, the longest Qwen prompt is 1,764 tokens including 200 answer tokens.</p>
 <h3 id="D1.2-Answers-of-the-generator-(1-mark)-and-D1.3-the-out-of-corpus-query-(1-mark)">D1.2 Answers of the generator (1 mark) and D1.3 the out-of-corpus query (1 mark)<a class="anchor-link" href="#D1.2-Answers-of-the-generator-(1-mark)-and-D1.3-the-out-of-corpus-query-(1-mark)">¶</a></h3>
 </div>
 </div>
@@ -9939,22 +9939,23 @@ UNSUPPORTED: &lt;exact quote of the first unsupported statement, or none&gt;
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="D2.2-Spot-check-of-the-judge-(1-mark)">D2.2 Spot-check of the judge (1 mark)<a class="anchor-link" href="#D2.2-Spot-check-of-the-judge-(1-mark)">¶</a></h3><p>I read the full answer, the expected answer and the three chunks for <strong>Q4, Q5 and Q8</strong>. Each has two verdicts (correct, supported), so six in total. <strong>I agree with 3 of the 6.</strong></p>
+<h3 id="D2.2-Spot-check-of-the-judge-(1-mark)">D2.2 Spot-check of the judge (1 mark)<a class="anchor-link" href="#D2.2-Spot-check-of-the-judge-(1-mark)">¶</a></h3><p>I read the full answer, the expected answer and the three chunks for <strong>Q4, Q5 and Q8</strong>. Each has two labels (correct, supported), so six in total.</p>
+<p><strong>My grading convention.</strong> <em>Correct</em> means the answer gives what the question asks, accurately. Details that appear only in the reference answer, beyond what the question asks, are not required. <em>Partly correct</em> means it misses part of what the question asks, or contains a minor error. <em>Wrong</em> means it misses the main point, or says "Not found" when the answer is in the documents. The judge prompt instead compares against the full reference answer, which is stricter.</p>
 <table>
 <thead>
 <tr>
 <th>Query</th>
 <th>Judge: correct / supported</th>
 <th>My verdict</th>
-<th>Agree?</th>
+<th>Label agreement</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Q4 MyGov laptop eligibility</td>
 <td>partly correct / yes</td>
-<td>partly correct / yes</td>
-<td>2 of 2</td>
+<td><strong>correct</strong> / yes</td>
+<td>1 of 2</td>
 </tr>
 <tr>
 <td>Q5 Bajaj verbal complaint</td>
@@ -9965,24 +9966,25 @@ UNSUPPORTED: &lt;exact quote of the first unsupported statement, or none&gt;
 <tr>
 <td>Q8 JioStar retaliation</td>
 <td>partly correct / yes</td>
-<td><strong>wrong</strong> / <strong>yes</strong></td>
-<td>0 of 2 (see below)</td>
+<td><strong>wrong</strong> / yes</td>
+<td>1 of 2</td>
 </tr>
 </tbody>
 </table>
+<p><strong>Label agreement: 3 of 6.</strong> Under a strict reference-completeness convention, Q4 would be partly correct, because it omits the BYOD and organisation-laptop arrangements in the reference answer. The judge would then agree on both Q4 labels, and the count would be 4 of 6.</p>
 <ul>
-<li><strong>Q4 (agree):</strong> The answer gives who decides (department head or immediate supervisor) and the criteria (role, job requirements, technical needs), both from chunk [1]. It leaves out the second half of the expected answer, the two arrangements (BYOD allowance and organisation-owned laptop) that depend on the device category. So <em>partly correct</em> and <em>supported</em>.</li>
-<li><strong>Q5 (disagree on correctness):</strong> Chunk [2] says: <em>"In case of a verbal complaint, the complaint will be converted to a written complaint by the receiver of the complaint and consent of the complainant will be obtained."</em> The answer states exactly this, which is the whole expected answer. It should be <em>correct</em>. The judge's REASON asks for a point that is not in the expected answer ("informed of their rights"). It also lists "the consent of the complainant will be obtained" as unsupported, although that sentence is in chunk [2].</li>
-<li><strong>Q8 (disagree):</strong> The generator answered "Not found in the documents", but chunk [1] contains the span: <em>"e. Retaliation for having reported or threatened to report harassment, or for opposing unlawful harassment, or for participating in an investigation"</em>. By the judge prompt's own definition, a "Not found" reply to an answerable question is <strong>wrong</strong>. The judge's REASON describes an answer that was never given ("states that retaliation … is included"), so it graded the expected answer instead of the system answer. <em>Supported = yes</em> is acceptable, because a "Not found" reply makes no claim. I count the pair as 0 of 2 because the reason it gives for "yes" is the invented answer.</li>
+<li><strong>Q4:</strong> The question asks how eligibility is determined. The answer gives both the criteria (role, job requirements, technical needs) and who decides (department head or immediate supervisor), as stated in chunk [1]. It omits the two device arrangements, but the question does not ask for them, so I mark it <em>correct</em> and <em>supported</em>.</li>
+<li><strong>Q5:</strong> Chunk [2] says: <em>"In case of a verbal complaint, the complaint will be converted to a written complaint by the receiver of the complaint and consent of the complainant will be obtained."</em> The answer states exactly this, so it is <em>correct</em>. The judge's REASON asks for a point that is in neither the question nor the reference answer ("informed of their rights"). It also lists "the consent of the complainant will be obtained" as unsupported, although that sentence is in chunk [2], which contradicts its own <em>supported = yes</em>.</li>
+<li><strong>Q8:</strong> The generator answered "Not found in the documents", but chunk [1] contains the span: <em>"e. Retaliation for having reported or threatened to report harassment, or for opposing unlawful harassment, or for participating in an investigation"</em>. That makes the answer <strong>wrong</strong>, not partly correct. <em>Supported = yes</em> is acceptable, because a "Not found" reply makes no claim, so that label agrees. <strong>Separately, the judge's explanation is faulty:</strong> its REASON describes an answer that was never given ("states that retaliation … is included"). It appears to have graded the expected answer or the chunks, not the system answer.</li>
 </ul>
-<p><strong>What the spot-check shows about the 3B judge.</strong> It gave <em>partly correct</em> to 9 of the 10 answers and <em>correct</em> to none, and its reasons often name points that are not in the expected answer. My reading of all 10 answers gives:</p>
+<p><strong>What the spot-check shows about the 3B judge.</strong> It gave <em>partly correct</em> to 9 of the 10 answers and <em>correct</em> to none. Its reasons sometimes name points that are in neither the question nor the reference. Under my convention, all 10 answers give:</p>
 <ul>
-<li>correct 1 (Q5);</li>
-<li>partly correct 5 (Q1, Q2, Q4, Q9, Q10);</li>
-<li>wrong 4 (Q3, Q6, Q7, Q8);</li>
+<li>correct 3: Q4, Q5, and Q9 (it gives the initial action the question asks for: a confidential preliminary enquiry involving the complainant within 3 days);</li>
+<li>partly correct 3: Q1 and Q2 each miss or misstate part of the answer; Q10 says the preliminary enquiry is conducted by Corporate HR, which the policy does not state, and omits its 3-day limit;</li>
+<li>wrong 4: Q3, Q6, Q7, Q8;</li>
 <li>supported 8 of 10.</li>
 </ul>
-<p>Q1 is not supported: it attributes Bajaj Broking's employee list (chunk [2]) to Niramai. Q6 is not supported: its "broader oversight" claim is not in the chunks. The judge's counts were 0 / 9 / 1 and 9 of 10 supported. A larger judge (Llama-3.1-8B, selectable with <code>JUDGE=</code> when there is enough disk) would be the first improvement.</p>
+<p>Q1 is not supported: it attributes Bajaj Broking's employee list (chunk [2]) to Niramai. Q6 is not supported: its "broader oversight" claim is not in the chunks. The judge's counts were 0 / 9 / 1, and 9 of 10 supported. A larger judge (Llama-3.1-8B, selectable with <code>JUDGE=</code> when there is enough disk) would be the first improvement to try.</p>
 <h3 id="D2.3-Find-the-cause-(1-mark)">D2.3 Find the cause (1 mark)<a class="anchor-link" href="#D2.3-Find-the-cause-(1-mark)">¶</a></h3><p>For every query, the table below traces where the complete answer span was lost. There are three possible causes:</p>
 <ul>
 <li><strong>Candidate retrieval:</strong> the span is not in the best method's top 10, so the reranker never saw it.</li>
@@ -10424,7 +10426,7 @@ Where the span was lost: <strong>chunks OK - any error is generation</strong></p
 </table>
 <p>The time is the same as the current pipeline: it is the measured BM25 and reranking times from Parts B and C, since nothing extra is computed. This is only the retrieval part. The answer quality was not re-measured, and Q8 shows that a correct chunk [1] does not guarantee a correct answer. So the fix <strong>may help</strong>, but it does not guarantee a better answer. It does not fix Q6: that chunk is not in BM25's top 10, so it needs better candidate retrieval (for example, a stronger embedding model).</p>
 <p>For the generation failures (Q3, Q8), a separate change would add a prompt sentence: <em>"Read all three chunks before deciding the answer is not there,"</em> or use a larger generator.</p>
-<p><strong>A second retrieval fix that was tested and did not help: a larger candidate pool</strong> (retrieval and reranking only, no generation). The table below shows that pooling dense and BM25 candidates gave the same hit rates (60% / 80%) and doubled the time (36.2 ms vs 18.3 ms per query, measured). Q6 and Q7 are still missing from the final 3: a larger pool does not help when the reranker itself ranks the span chunk too low. The same cross-encoder reranks a pool that combines the dense top 10 and the BM25 top 10, and keeps the top 3. This is compared with the pipeline used above (BM25 top 10 → top 3).</p>
+<p><strong>A second retrieval fix that was tested and did not help: a larger candidate pool</strong> (retrieval and reranking only, no generation). The table below shows that pooling dense and BM25 candidates gave the same hit rates (60% / 80%) and doubled the time (36.2 ms vs 18.3 ms per query, measured). Q6 and Q7 are still missing from the final 3. The same cross-encoder reranks a pool that combines the dense top 10 and the BM25 top 10, and keeps the top 3. This is compared with the pipeline used above (BM25 top 10 → top 3).</p>
 </div>
 </div>
 </div>
