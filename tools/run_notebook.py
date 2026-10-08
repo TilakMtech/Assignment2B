@@ -26,7 +26,20 @@ def export():
                    check=True, env=env)
 
 
+def archive_previous_results():
+    """Moves results of earlier runs aside so the submission holds one consistent run."""
+    results = ROOT / "outputs" / "results"
+    old = [p for p in results.glob("*") if p.is_file()] if results.exists() else []
+    if old:
+        dest = ROOT / "outputs" / "previous_runs" / time.strftime("%Y%m%d-%H%M%S")
+        dest.mkdir(parents=True, exist_ok=True)
+        for p in old:
+            p.rename(dest / p.name)
+        print(f"Moved {len(old)} result files of the previous run to {dest.relative_to(ROOT)}")
+
+
 def main():
+    archive_previous_results()
     nb = nbformat.read(NB, as_version=4)
     os.environ["PYTHONNOUSERSITE"] = "1"
     client = NotebookClient(nb, kernel_name=KERNEL, timeout=7200, resources={"metadata": {"path": str(NB.parent)}})

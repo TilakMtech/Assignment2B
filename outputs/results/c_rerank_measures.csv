@@ -1,7 +1,7 @@
 Measure,Value
-Reranking time per query (ms),22.3
+Reranking time per query (ms),21.3
 Rank change rate (%),30.0
-"Hit rate@1 before reranking (from Part B, BM25)",60.0
+"Hit rate@1 before reranking (from Part B, BM25)",70.0
 Hit rate@1 after reranking,60.0
-Hit rate@3 before reranking (BM25),80.0
-Hit rate@3 after reranking,90.0
+Hit rate@3 before reranking (BM25),90.0
+Hit rate@3 after reranking,80.0

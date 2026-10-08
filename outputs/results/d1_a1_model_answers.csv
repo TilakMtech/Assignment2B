@@ -1,5 +1,5 @@
-qid,query,A1 model answer,cites a chunk,says Not found
-Q1,Who is covered by Niramai's Code of Conduct?,"The Code of Conduct applies to all employees, including temporary, part-time, and casual staff. It also applies to contractors and consultants.",False,False
+qid,query,A1 model answer,cites a chunk,says Not found,A1 prompt tokens,"prompt + 200 within 2,048"
+Q1,Who is covered by Niramai's Code of Conduct?,"The Code of Conduct applies to all employees, including temporary, part-time, and casual staff. It also applies to contractors and consultants.",False,False,1992,False
 Q2,Why did Astral establish a vigil mechanism and whistle-blower policy?,"The mechanism is intended tob, and the whistle-purchase|
 
 The mechanism, the whistle-purchase and
@@ -124,12 +124,12 @@ The purchase
 
 
 
-or and and and and and ors or or or or or or or or",False,False
-Q3,How do the two laptop-support arrangements in MyGov's policy differ?,"The organization provides a fixed monthly payment for the use of a laptop, but the employee is expected to cover the cost of the laptop's purchase and maintenance. The policy also provides for reimbursement of the cost of the laptop's purchase and maintenance, but the employee is expected to cover the cost of the laptop's purchase and maintenance.",False,False
-Q4,How is eligibility for a laptop or laptop charges determined at MyGov?,The eligibility for laptop charges is based on the employee’s role and responsibilities. The eligibility for laptop charges is also based on the employee’s role and responsibilities. The eligibility for laptop charges is also based on the employee’s role and responsibilities.,False,False
+or and and and and and ors or or or or or or or or",False,False,2195,False
+Q3,How do the two laptop-support arrangements in MyGov's policy differ?,"The organization provides a fixed monthly payment for the use of a laptop, but the employee is expected to cover the cost of the laptop's purchase and maintenance. The policy also provides for reimbursement of the cost of the laptop's purchase and maintenance, but the employee is expected to cover the cost of the laptop's purchase and maintenance.",False,False,1992,False
+Q4,How is eligibility for a laptop or laptop charges determined at MyGov?,The eligibility for laptop charges is based on the employee’s role and responsibilities. The eligibility for laptop charges is also based on the employee’s role and responsibilities. The eligibility for laptop charges is also based on the employee’s role and responsibilities.,False,False,2040,False
 Q5,How is a verbal sexual-harassment complaint converted for formal handling at Bajaj Broking?,"The IC will receive the complaint and refer it to the IC for the workplace, which will manage the redressal process. The IC wills the process, which is sexual harassment at work, and handle the redressal, which is the IC, which the work and manage the redressal, and the IC.
 
-The IC, which work and handle the redness.",False,False
+The IC, which work and handle the redness.",False,False,2167,False
 Q6,How do Bajaj Broking managers' harassment-prevention duties differ from individual employees' duties?,"The company's policy is to prevent, and take disciplinary action against the perpetrator, and to provide for the aggrieved person's name, address, telephone number, and email address, and to provide the policy's provisions, and the company's policy, and disciplinary action, and providing the aggrants, and providing, and email, and email, and sms, and email, and providing, and providing, and providing, and providing, and providing, and providing ands, and providing, andsafact or providing, and providing, and providing and providing ands.
 
 and providing, providing, and providing ands
@@ -139,9 +139,9 @@ and
 ands
 
 
-and and andand ands ands ands ands ands ands ands andand ands ands ands and and ands ands ands ands ands ands ands ands and and and",False,False
-Q7,How does JioStar's listed harassment scope distinguish verbal from visual conduct?,"The scope of the policy includes verbal conduct such as sexually suggestive or offensive remarks, jokes, inappropriate comments about a person's clothing or body, and physical conduct such as unwanted physical contact or physical assault. It also covers unwelcome physical contact such as grabbing, pinching, or pushing.",False,False
-Q8,Does JioStar's harassment scope include retaliation for taking part in an investigation?,"The policy covers sexual harassment, unwelcome sexually determined conduct, and retaliation against individuals who report or participate in an investigation. The policy also prohibits retaliation against witnesses and provides for disciplinary action against perpetrators.",False,False
-Q9,What initial action does Aurobindo describe after receiving a human-rights complaint?,"The company takes the complaint seriously and initiates an inquiry. The inquiry is completed and the findings are reported to the complainant and the respondent. The company then takes appropriate action, including providing the complainant with an apology and the respondent with a written apology.",False,False
-Q10,How does Aurobindo distinguish the preliminary inquiry from its detailed grievance inquiry?,"The preliminary inquiry is a first step in the grievance inquiry process. It is not a substitute for the inquiry itself, which is required to be completed before any action is taken.",False,False
-Q11,"Does MyGov allow employees to bring their pet dogs to the office, and what rules apply?","The company is a pet-friendly workplace, and employees are free to bring their pets to the office. However, the company requires that the animal is kept on a leash and that the owner is responsible for any damage caused by the pet.",False,False
+and and andand ands ands ands ands ands ands ands andand ands ands ands and and ands ands ands ands ands ands ands ands and and and",False,False,2165,False
+Q7,How does JioStar's listed harassment scope distinguish verbal from visual conduct?,"The scope of the policy includes verbal conduct such as sexually suggestive or offensive remarks, jokes, inappropriate comments about a person's clothing or body, and physical conduct such as unwanted physical contact or physical assault. It also covers unwelcome physical contact such as grabbing, pinching, or pushing.",False,False,1989,False
+Q8,Does JioStar's harassment scope include retaliation for taking part in an investigation?,"The policy covers sexual harassment, unwelcome sexually determined conduct, and retaliation against individuals who report or participate in an investigation. The policy also prohibits retaliation against witnesses and provides for disciplinary action against perpetrators.",False,False,1783,True
+Q9,What initial action does Aurobindo describe after receiving a human-rights complaint?,"The company takes the complaint seriously and initiates an inquiry. The inquiry is completed and the findings are reported to the complainant and the respondent. The company then takes appropriate action, including providing the complainant with an apology and the respondent with a written apology.",False,False,2001,False
+Q10,How does Aurobindo distinguish the preliminary inquiry from its detailed grievance inquiry?,"The preliminary inquiry is a first step in the grievance inquiry process. It is not a substitute for the inquiry itself, which is required to be completed before any action is taken.",False,False,2004,False
+Q11,"Does MyGov allow employees to bring their pet dogs to the office, and what rules apply?","The company is a pet-friendly workplace, and employees are free to bring their pets to the office. However, the company requires that the animal is kept on a leash and that the owner is responsible for any damage caused by the pet.",False,False,1983,False

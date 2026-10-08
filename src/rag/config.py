@@ -51,3 +51,24 @@ JUDGE_NAME = _env("JUDGE_NAME", "Llama-3.2-3B-Instruct (4-bit NF4)")
 GEN_MAX_NEW_TOKENS = _env("GEN_MAX_NEW_TOKENS", 200, int)
 JUDGE_MAX_NEW_TOKENS = _env("JUDGE_MAX_NEW_TOKENS", 200, int)
 NOT_FOUND = "Not found in the documents"
+
+# ---- context budgets (checked per query with each model's own tokenizer)
+A1_CONTEXT = 2048            # TinyLlama-1.1B max_position_embeddings
+A1_TOKENIZER_HUB = "TinyLlama/TinyLlama-1.1B-intermediate-step-1431k-3T"  # used if the A1 files are gone
+# The Zephyr chat template the Assignment 1 model was fine-tuned with (copied from CorpPolicyLM/src/config.py).
+A1_CHAT_TEMPLATE = (
+    "{% for message in messages %}\n"
+    "{% if message['role'] == 'user' %}\n"
+    "{{ '<|user|>\n' + message['content'] + eos_token }}\n"
+    "{% elif message['role'] == 'system' %}\n"
+    "{{ '<|system|>\n' + message['content'] + eos_token }}\n"
+    "{% elif message['role'] == 'assistant' %}\n"
+    "{{ '<|assistant|>\n'  + message['content'] + eos_token }}\n"
+    "{% endif %}\n"
+    "{% if loop.last and add_generation_prompt %}\n"
+    "{{ '<|assistant|>' }}\n"
+    "{% endif %}\n"
+    "{% endfor %}"
+)
+# Saved Assignment 1 trial (the A1 model files were later removed from the lab disk to make room).
+A1_TRIAL_DIR = ROOT / "data" / "a1_trial"

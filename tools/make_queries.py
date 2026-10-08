@@ -15,23 +15,21 @@ def norm(text):
     return re.sub(r"\s+", " ", text).strip().lower()
 
 
-# (index in the A1 eval set, answer span copied from the source document)
+# (index in the A1 eval set, first words, last words) of the answer span. The span is the SHORTEST
+# contiguous source passage that supports the complete expected answer - for comparison questions it
+# covers both sides being compared. It is cut from the (whitespace-normalised) source document.
 SELECTION = [
-    (0, "is applicable to all the employees appointed on the payroll of Niramai Health Analytix Private Limited"),
-    (2, "Such vigil mechanism not only helps to detect fraud in organizations, but is also used as a corporate "
-        "governance tool, which prevents and deters fraudulent activity"),
-    (4, "provision of a fixed monthly disbursement (“Laptop Charges”) for use of personal laptops"),
-    (5, "Eligibility will be determined by the department head or immediate supervisor"),
-    (6, "In case of a verbal complaint, the complaint will be converted to a written complaint by the receiver "
-        "of the complaint and consent of the complainant will be obtained"),
-    (7, "Responsibilities of Managers: All managers at BFSL must ensure that no employee is subject to harassment"),
-    (8, "b. Visual conduct such as derogatory and/or sexually oriented posters, offensive or obscene photography, "
-        "cartoons, drawings or gestures"),
-    (9, "Retaliation for having reported or threatened to report harassment, or for opposing unlawful "
-        "harassment, or for participating in an investigation"),
-    (10, "Preliminary enquiry will be conducted by involving the complainant in such a way that the matter will "
-         "be dealt with utmost confidentiality within 3days time"),
-    (11, "Corporate HR, Unit HR, concerned Department HOD hold detailed enquiry"),
+    (0, "is applicable to all the employees appointed", "Private Limited"),
+    (2, "mandates that every Listed Company to establish a mechanism", "prevents and deters fraudulent activity"),
+    (4, "(a) provision of a fixed monthly disbursement", "requiring advanced technical capabilities"),
+    (5, "based on their role, job requirements, and technical needs", "head or immediate supervisor"),
+    (6, "In case of a verbal complaint", "consent of the complainant will be obtained"),
+    (7, "Responsibilities of Individual:", "are not victimized in any manner"),
+    (8, "a. Verbal conduct such as epithets", "cartoons, drawings or gestures"),
+    (9, "Retaliation for having reported or threatened to report harassment",
+        "or for participating in an investigation"),
+    (10, "Any complaint that is received through email address", "whether there is a prima facie case or not"),
+    (11, "Preliminary enquiry will be conducted", "to the attention of Management amicably"),
 ]
 # Left out: eval #1 (same passage and near-duplicate question as #0) and #3 (abstract
 # reading of the same Astral sentence as #2).
@@ -45,13 +43,17 @@ OUT_OF_CORPUS = {
 
 def main():
     queries = []
-    for n, (idx, span) in enumerate(SELECTION, 1):
+    for n, (idx, first, last) in enumerate(SELECTION, 1):
         row = EVAL[idx]
-        doc = (ROOT / "data/domain_corpus" / row["source"]).read_text(encoding="utf-8")
-        assert norm(span) in norm(doc), f"span for eval #{idx} not found in {row['source']}"
+        doc = re.sub(r"\s+", " ", (ROOT / "data/domain_corpus" / row["source"]).read_text(encoding="utf-8"))
+        start = doc.find(first)
+        assert start >= 0, f"start of span for eval #{idx} not found in {row['source']}"
+        end = doc.find(last, start)
+        assert end >= 0, f"end of span for eval #{idx} not found in {row['source']}"
+        span = doc[start:end + len(last)]
         queries.append({"qid": f"Q{n}", "a1_eval_index": idx, "query": row["instruction"],
                         "expected_answer": row["response"], "question_type": row["question_type"],
-                        "source": row["source"], "answer_span": span})
+                        "source": row["source"], "answer_span": span, "span_words": len(span.split())})
     corpus = " ".join(norm(p.read_text(encoding="utf-8")) for p in (ROOT / "data/domain_corpus").glob("*.txt"))
     assert not re.search(r"\bpets?\b|\bdogs?\b", corpus), "out-of-corpus query is answerable"
     out = {"queries": queries, "out_of_corpus": OUT_OF_CORPUS}

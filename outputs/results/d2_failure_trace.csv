@@ -1,0 +1,11 @@
+qid,rank in BM25 top 10,rank in final 3,where the span was lost,judge
+Q1,1.0,1.0,chunks OK - any error is generation,partly correct / supported=yes
+Q2,1.0,1.0,chunks OK - any error is generation,partly correct / supported=yes
+Q3,1.0,2.0,chunks OK - any error is generation,partly correct / supported=yes
+Q4,1.0,1.0,chunks OK - any error is generation,partly correct / supported=yes
+Q5,2.0,2.0,chunks OK - any error is generation,partly correct / supported=yes
+Q6,,,candidate retrieval (not in top 10),partly correct / supported=yes
+Q7,1.0,,"reranking (in top 10, not in final 3)",wrong / supported=no
+Q8,1.0,1.0,chunks OK - any error is generation,partly correct / supported=yes
+Q9,2.0,1.0,chunks OK - any error is generation,partly correct / supported=yes
+Q10,1.0,1.0,chunks OK - any error is generation,partly correct / supported=yes

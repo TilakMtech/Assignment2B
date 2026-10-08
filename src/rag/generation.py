@@ -18,6 +18,21 @@ GEN_TEMPLATE = """Answer the question using ONLY the numbered chunks below.
 
 Rules:
 1. Use only facts stated in the chunks. Do not add facts from outside knowledge.
+2. The chunks are labelled [1], [2] and [3]. After each sentence, cite the label(s) of the chunk(s) you used, for example [2]. Cite ONLY these labels: numbers that appear inside the chunk text, such as 5.2 or 4.1.1, are policy section numbers, not chunk labels, and must never be cited.
+3. If the chunks do not contain the answer, reply exactly: Not found in the documents.
+4. Answer in 1 to 3 sentences.
+
+Chunks:
+{chunks}
+
+Question: {question}
+Answer:"""
+
+# Version used for the saved Assignment 1 trial (before the citation-label sentence was added).
+GEN_TEMPLATE_V1 = """Answer the question using ONLY the numbered chunks below.
+
+Rules:
+1. Use only facts stated in the chunks. Do not add facts from outside knowledge.
 2. Cite the chunk number(s) you used in square brackets after each sentence, for example [2].
 3. If the chunks do not contain the answer, reply exactly: Not found in the documents.
 4. Answer in 1 to 3 sentences.
@@ -172,6 +187,29 @@ def judge(model, tok, user_prompt, system=None):
 # ----------------------------------------------------------------------------- answer checks
 def cites(answer):
     return sorted({int(n) for n in re.findall(r"\[(\d+)\]", answer)})
+
+
+def citation_check(answer, n_chunks=3):
+    """Splits bracketed citations into valid chunk labels [1..n] and anything else (e.g. [5.2])."""
+    found = re.findall(r"\[([^\[\]]{1,12})\]", answer)
+    valid = sorted({int(c) for c in found if c.strip().isdigit() and 1 <= int(c) <= n_chunks})
+    invalid = sorted({c.strip() for c in found if not (c.strip().isdigit() and 1 <= int(c) <= n_chunks)})
+    return valid, invalid
+
+
+def a1_tokenizer():
+    """Tokenizer of the Assignment 1 model with the chat template it was fine-tuned with."""
+    from transformers import AutoTokenizer
+    src = config.A1_ADAPTER if (config.A1_ADAPTER / "tokenizer_config.json").exists() else config.A1_TOKENIZER_HUB
+    tok = AutoTokenizer.from_pretrained(src)
+    tok.chat_template = config.A1_CHAT_TEMPLATE
+    return tok
+
+
+def chat_prompt_tokens(tok, system, user):
+    """Exact number of tokens of the fully formatted chat prompt (what the model actually receives)."""
+    messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
+    return len(tok.apply_chat_template(messages, add_generation_prompt=True, tokenize=True, return_dict=True)["input_ids"])
 
 
 def says_not_found(answer):

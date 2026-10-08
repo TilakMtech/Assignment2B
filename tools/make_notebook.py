@@ -61,7 +61,13 @@ The 10 queries come from the Assignment 1 evaluation set (12 held-out pairs from
 * #1 asks about the same Niramai passage as #0 with a near-identical question.
 * #3 is an abstract re-reading of the same Astral sentence as #2.
 
-For each query, the **answer span** is the sentence or short passage in the corpus that answers it. Every span is checked to occur verbatim in its source document (`tools/make_queries.py`). A retrieved chunk is a **hit** if it contains the whole span; the comparison is case-insensitive and ignores line breaks.
+For each query, the **answer span** is the **shortest contiguous source passage that supports the complete expected answer**.
+* For comparison questions (Q3, Q6, Q7, Q10), the span covers **both** sides being compared. Q6, for example, runs from the individual employees' responsibilities through the managers' responsibilities.
+* For Q2, Q4 and Q9 it also includes the condition or channel that the expected answer names.
+
+Every span is cut from its source document (`tools/make_queries.py`), so it occurs verbatim. A retrieved chunk is a **hit** only if it contains the **whole** span; the comparison is case-insensitive and ignores line breaks. A chunk that holds only one side of a comparison is therefore not a hit.
+
+*Revision note:* a first version used shorter spans, some covering only one side of a comparison. The stricter spans lower every hit rate below, and longer spans are more often split across a chunk boundary.
 
 A separate 11th query, whose answer is not in the corpus, is used only in D1.
 """)
@@ -70,7 +76,7 @@ code(r"""
 docs = load_corpus()
 queries, ooc = load_queries()
 print(f"{len(docs)} documents, {sum(len(t.split()) for t in docs.values()):,} words")
-display(pd.DataFrame(queries)[["qid", "query", "answer_span", "source", "expected_answer"]])
+display(pd.DataFrame(queries)[["qid", "query", "answer_span", "span_words", "source", "expected_answer"]])
 print("Out-of-corpus query (D1.3):", ooc["query"])
 """)
 
@@ -106,9 +112,20 @@ The brief's text asks for 100 and 400 tokens, while its table lists 100 and 500,
 **Columns:**
 * *Total chunks* — the absolute count (the table's "(1M)" header appears to be a typo).
 * *Queries answerable* — queries whose span lies inside a single chunk; a span that straddles a chunk boundary cannot be a hit at that size.
+* *Prompt tokens* — the exact length of the fully formatted chat prompt (system message, rules, the three numbered chunks and the question), counted **with each generator's own tokenizer**, plus 200 tokens reserved for the answer. It is shown as the maximum over the 10 queries, together with how many queries exceed the model's context limit:
+  * Assignment 1 model (TinyLlama): 2,048 tokens;
+  * Qwen2.5: 32,768 tokens.
+  These rows use the dense top 3 of each size. D1 repeats the check for the exact prompts that were sent.
 """)
 
 code(r"""
+from transformers import AutoTokenizer
+a1_tok = gen.a1_tokenizer()                              # Assignment 1 tokenizer + its Zephyr chat template
+g_tok_count = AutoTokenizer.from_pretrained(config.GENERATOR)   # generator tokenizer only (a few MB)
+G_CONTEXT = 32768                                        # Qwen2.5-3B/7B-Instruct context length
+def budget(tok, size_chunks, hits):   # per-query prompt tokens (+ reserved answer tokens), top-3 chunks
+    return [gen.chat_prompt_tokens(tok, gen.GEN_SYSTEM, gen.gen_prompt(q["query"], [size_chunks[c] for c, _ in h[:3]]))
+            + config.GEN_MAX_NEW_TOKENS for q, h in zip(queries, hits)]
 size_rows, size_runs = [], {}
 for size in config.CHUNK_SIZES:
     assert size + 2 <= limit, f"{size}-token chunks exceed the embedding limit"
@@ -120,6 +137,10 @@ for size in config.CHUNK_SIZES:
                       "Hit rate@3 (%)": retrieval.hit_at(results, queries, chunks, 3),
                       "Tokens sent per query (top 3)": round(np.mean([sum(chunks[c].n_tokens for c, _ in h[:3]) for h in results]), 1),
                       "Queries answerable (span inside one chunk)": sum(bool(answer_chunk_ids(chunks, q["answer_span"])) for q in queries),
+                      "A1 prompt tokens, max (+200 answer)": max(a1_b := budget(a1_tok, chunks, results)),
+                      "Queries over A1 limit (2,048)": sum(t > config.A1_CONTEXT for t in a1_b),
+                      "Qwen prompt tokens, max (+200 answer)": max(g_b := budget(g_tok_count, chunks, results)),
+                      "Queries over Qwen limit (32,768)": sum(t > G_CONTEXT for t in g_b),
                       "Index build time (s)": round(index.build_seconds, 2)})
 size_table = pd.DataFrame(size_rows)
 size_table.to_csv(config.RESULTS / "a2_chunk_sizes.csv", index=False)
@@ -131,14 +152,16 @@ for size, (chunks, _, results) in size_runs.items():
 
 md(r"""
 ### Choosing the size (rule applied in code; `CHUNK_SIZE=<n>` overrides it)
-1. Highest hit rate@3.
-2. On a tie, fewer tokens sent per query.
-3. Three chunks must fit the Assignment 1 model's 2,048-token context together with the prompt and answer.
+1. Every prompt must fit the context of the generator that answers in D1 (Qwen2.5, 32,768 tokens), measured per query with its own tokenizer.
+2. Among those sizes, the highest hit rate@3.
+3. On a tie, fewer tokens sent per query.
+
+The Assignment 1 model's 2,048-token limit is reported in the table rather than used as a filter. That model is only the first trial in D1; how its limit interacts with the chosen size is discussed in A2.2 and D1.
 """)
 
 code(r"""
-def pick_size(table, budget=2048 - 400):   # ~400 tokens for instructions, question and answer
-    ok = table[table["Tokens sent per query (top 3)"] <= budget]
+def pick_size(table):
+    ok = table[table["Queries over Qwen limit (32,768)"] == 0]
     best = ok.sort_values(["Hit rate@3 (%)", "Tokens sent per query (top 3)"], ascending=[False, True]).iloc[0]
     return int(best["Chunk size (tokens)"])
 CHUNK_SIZE = config.CHUNK_SIZE or pick_size(size_table)
@@ -159,11 +182,7 @@ display(pd.Series(a1_report).to_frame("value"))
 
 md(r"""
 ### A2.2 Chosen chunk size and why (1 mark)
-**500 tokens.** It has the highest hit rate@3: 80 %, against 70 % at 400 tokens and 40 % at 100. The other two sizes lose for different reasons:
-* **100 tokens:** a clause is cut into pieces. One answer span does not fit in any single chunk, and the short chunks lack the surrounding wording that matches the questions.
-* **400 tokens:** close, but a lower hit rate (70 %).
-
-The cost of 500 is about 1,460 tokens of context per query, five times the 100-token setting. That is easy for Qwen2.5 (32 K-token context). For the 2,048-token Assignment 1 model, the full prompt (about 1,200 words) only just fits, which leaves little room for the answer.
+""" + PENDING + r"""
 """)
 
 md(r"""
@@ -208,15 +227,7 @@ print("Best method for Part C:", BEST)
 
 md(r"""
 ### B4. Which method works best and why, with one example query (1 mark)
-**BM25.** All three methods put the answer span in the top 3 for 8 of the 10 queries and in the top 5 for 9. BM25 wins on two counts:
-* It ranks the span **first** more often: hit rate@1 is 60 %, against 50 % for dense and hybrid.
-* It is about 6× faster: 1.4 ms per query, against 8.8 ms for dense and 10.4 ms for hybrid.
-
-The questions reuse the policies' own wording and organisation names, which exact-term matching rewards.
-
-**Example — Q5,** "How is a *verbal* sexual-harassment *complaint converted* for formal handling at *Bajaj Broking*?" BM25 ranks the answer chunk 1st because it shares exactly those words ("In case of a verbal complaint, the complaint will be converted …"); dense search ranks it 5th, below other Bajaj POSH chunks with similar meaning.
-
-**Dense still has strengths.** Q6 (managers' duties) is found only by dense search (rank 3). With equal hit@3, RRF did not combine the two strengths here: hybrid matched dense on hit@1 and was the slowest.
+""" + PENDING + r"""
 """)
 
 md(r"""
@@ -264,15 +275,7 @@ display(rerank_table)
 
 md(r"""
 ### C4. Did reranking help? (1 mark)
-**Not for the first result.** Hit rate@1 is 60 % both before and after reranking. The cross-encoder changed the top result for 3 of 10 queries (rank change rate 30 %):
-* **One gain:** Q9's answer chunk moved from 2nd to 1st.
-* **Two losses:**
-  * Q5's answer chunk dropped from 1st to 3rd.
-  * In Q3, a Talent-Development-policy chunk moved above the laptop-policy chunks.
-
-**It did help the context the generator reads.** Hit rate@3 rose from 80 % to 90 %, because Q8's answer chunk moved from rank 4 into the top 3.
-
-**Cost:** 22.9 ms per query, about 16× the BM25 search itself, but negligible next to answer generation (seconds per query). It is worth keeping for the top-3 context and not worth it for top-1 accuracy alone.
+""" + PENDING + r"""
 """)
 
 md(r"""
@@ -304,51 +307,56 @@ The brief allows switching to an instruct model if the Assignment 1 model ignore
 """)
 
 code(r"""
-a1_rows = []
+trial = json.loads((config.A1_TRIAL_DIR / "a1_trial_contexts.json").read_text())
 if (config.A1_BASE / "config.json").exists() and (config.A1_ADAPTER / "adapter_config.json").exists():
-    a1_model, a1_tok = gen.load_a1_model()
-    for q, p in zip(all_q, prompts):
-        ans = gen.chat(a1_model, a1_tok, gen.GEN_SYSTEM, p)
-        a1_rows.append({"qid": q["qid"], "query": q["query"], "A1 model answer": ans,
-                        "cites a chunk": bool(gen.cites(ans)), "says Not found": gen.says_not_found(ans)})
+    a1_model, a1m_tok = gen.load_a1_model()
+    a1_prompts, source_note = prompts, "generated in this run with the current prompt"
+    a1_answers = pd.DataFrame([{"qid": q["qid"], "query": q["query"], "A1 model answer": gen.chat(a1_model, a1m_tok, gen.GEN_SYSTEM, p)}
+                               for q, p in zip(all_q, a1_prompts)])
     del a1_model; gen.free()
-    a1_answers = pd.DataFrame(a1_rows)
-    a1_answers.to_csv(config.RESULTS / "d1_a1_model_answers.csv", index=False)
-    display(a1_answers)
-    print(f"A1 model: cites a chunk in {a1_answers['cites a chunk'].sum()}/11 answers; "
-          f"says 'Not found' for the out-of-corpus query: {bool(a1_answers['says Not found'].iloc[-1])}")
-elif (config.RESULTS / "d1_a1_model_answers.csv").exists():   # model removed from the lab disk after an earlier run
-    a1_answers = pd.read_csv(config.RESULTS / "d1_a1_model_answers.csv")
-    print(f"Assignment 1 model files are no longer under {config.A1_PROJECT}; showing its saved answers from the earlier run "
-          "(same prompts, greedy decoding).")
-    display(a1_answers)
-    print(f"A1 model: cites a chunk in {a1_answers['cites a chunk'].sum()}/11 answers; "
-          f"says 'Not found' for the out-of-corpus query: {bool(a1_answers['says Not found'].iloc[-1])}")
-else:
-    print(f"Assignment 1 model not found under {config.A1_PROJECT} - set A1_PROJECT to the CorpPolicyLM folder.")
+else:   # the A1 model files were removed from the lab disk after its trial run: show the saved trial
+    tchunks = size_runs[trial["chunk_size"]][0]
+    for q in all_q:   # the saved chunk ids must point at the same documents in this run's chunking
+        ids = trial["contexts"][q["qid"]]["chunk_ids"]
+        assert all(c < len(tchunks) for c in ids) and [tchunks[c].source for c in ids] == trial["contexts"][q["qid"]]["sources"], \
+            f"saved A1 trial contexts do not match this run's {trial['chunk_size']}-token chunks ({q['qid']})"
+    a1_prompts = [gen.GEN_TEMPLATE_V1.format(chunks=gen.format_chunks([tchunks[c] for c in trial["contexts"][q["qid"]]["chunk_ids"]]),
+                                             question=q["query"]) for q in all_q]
+    a1_answers = pd.read_csv(config.A1_TRIAL_DIR / "d1_a1_model_answers.csv")[["qid", "query", "A1 model answer"]]
+    source_note = (f"saved from its trial run ({trial['chunk_size']}-token chunks, BM25 top 10 -> reranked top 3, "
+                   "prompt version 1 - before the citation-label sentence); the model files are no longer on the lab disk")
+a1_answers["cites a chunk"] = [bool(gen.citation_check(a)[0]) for a in a1_answers["A1 model answer"]]
+a1_answers["says Not found"] = [gen.says_not_found(a) for a in a1_answers["A1 model answer"]]
+# exact prompt length with the A1 tokenizer and chat template, + 200 tokens reserved for the answer
+a1_answers["A1 prompt tokens"] = [gen.chat_prompt_tokens(a1_tok, gen.GEN_SYSTEM, p) for p in a1_prompts]
+a1_answers["prompt + 200 within 2,048"] = a1_answers["A1 prompt tokens"] + config.GEN_MAX_NEW_TOKENS <= config.A1_CONTEXT
+a1_answers.to_csv(config.RESULTS / "d1_a1_model_answers.csv", index=False)
+print("Assignment 1 model answers:", source_note)
+display(a1_answers)
+over = a1_answers[~a1_answers["prompt + 200 within 2,048"]]
+print(f"A1 prompt tokens: max {a1_answers['A1 prompt tokens'].max()}, {len(over)}/11 prompts leave less than 200 tokens "
+      f"for the answer within the 2,048-token context ({', '.join(over.qid) or 'none'})")
+print(f"A1 model: cites a chunk in {a1_answers['cites a chunk'].sum()}/11 answers; "
+      f"says 'Not found' for the out-of-corpus query: {bool(a1_answers['says Not found'].iloc[-1])}")
 """)
 
 md(r"""
-**Problem observed with the Assignment 1 model, and the switch.** The Assignment 1 model (TinyLlama-1.1B CPT + Adapter B) ignored both the chunks and the instructions:
-* It cited a chunk in **0 of 11** answers and never replied "Not found".
-* For the out-of-corpus question it invented a policy: *"The company is a pet-friendly workplace, and employees are free to bring their pets to the office. However, the company requires that the animal is kept on a leash …"*
-* Other answers contradict their chunks. In Q1 it says Niramai's code covers temporary, part-time and casual staff and contractors; chunk [1] says employees on the payroll.
-* Some answers degenerate into repetition (Q2, Q6).
-
-As the brief allows, generation therefore switches to the instruct model **Qwen2.5-3B-Instruct** (4-bit), with the same prompt and the same top-3 chunks.
+**Problem observed with the Assignment 1 model, and the switch.** """ + PENDING + r"""
 
 ### D1.2 Answers of the generator (1 mark) and D1.3 the out-of-corpus query (1 mark)
 """)
 
 code(r"""
 print(f"Generator: {config.GENERATOR_NAME}  [{config.GENERATOR}]  - free disk before download: {gen.free_gb():.1f} GiB")
-gen.make_room(config.GENERATOR)
+gen.make_room(config.GENERATOR, drop=config.JUDGE)   # re-runs: the judge may still be cached
 g_model, g_tok = gen.load_instruct(config.GENERATOR)
 answers = [gen.chat(g_model, g_tok, gen.GEN_SYSTEM, p) for p in prompts]
 del g_model; gen.free()
-gen_table = pd.DataFrame([{"qid": q["qid"], "query": q["query"], "answer": a, "cited chunks": gen.cites(a),
+cit = [gen.citation_check(a, n_chunks=len(ctx)) for a, ctx in zip(answers, contexts)]
+gen_table = pd.DataFrame([{"qid": q["qid"], "query": q["query"], "answer": a, "valid citations": v, "invalid citations": inv,
+                           "prompt tokens (Qwen)": gen.chat_prompt_tokens(g_tok, gen.GEN_SYSTEM, p),
                            "chunks used (source)": " | ".join(f"[{i}] {c.source}" for i, c in enumerate(ctx, 1))}
-                          for q, a, ctx in zip(all_q, answers, contexts)])
+                          for q, a, (v, inv), p, ctx in zip(all_q, answers, cit, prompts, contexts)])
 gen_table.to_csv(config.RESULTS / "d1_generator_answers.csv", index=False)
 json.dump([{"qid": q["qid"], "query": q["query"], "expected_answer": q["expected_answer"], "answer": a,
             "chunk_ids": [c for c, _ in h]} for q, a, h in zip(all_q, answers, all_ctx)],
@@ -357,6 +365,12 @@ display(gen_table.iloc[:10])
 print("D1.3 - out-of-corpus query:", ooc_q["query"])
 print("Answer:", answers[-1])
 print("Says 'Not found in the documents':", gen.says_not_found(answers[-1]))
+bad = gen_table[gen_table["invalid citations"].str.len() > 0]
+uncited = gen_table[(gen_table["valid citations"].str.len() == 0) & ~gen_table.answer.map(gen.says_not_found)]
+print(f"Citation check: {len(bad)} answers cite labels other than [1]-[3] ({', '.join(bad.qid) or 'none'}); "
+      f"{len(uncited)} answers that are not 'Not found' cite no valid chunk ({', '.join(uncited.qid) or 'none'}). "
+      "Answers are shown exactly as generated.")
+print(f"Qwen prompt tokens: max {gen_table['prompt tokens (Qwen)'].max()} (+200 for the answer) of a 32,768-token context")
 """)
 
 md(r"""
@@ -400,17 +414,32 @@ md(r"""
 """ + PENDING + r"""
 
 ### D2.3 Find the cause (1 mark)
-The cell below shows the three chunks of every answer the judge marked wrong, partly correct or unsupported, and states whether the answer span was among them. If the span was there, generation caused the problem; if not, retrieval did.
+For every query, the table below traces where the complete answer span was lost. There are three possible causes:
+* **Candidate retrieval:** the span is not in the best method's top 10, so the reranker never saw it.
+* **Reranking:** the span is in the top 10, but not in the final 3 chunks.
+* **Generation:** the span is in the 3 chunks the generator received, so the generator caused the error.
+
+After the table come the three chunks of every answer the judge marked wrong, partly correct or unsupported.
 """)
 
 code(r"""
+def stage(q, b10, a3):
+    r10, r3 = retrieval.first_hit_rank(b10, q, chunks), retrieval.first_hit_rank(a3, q, chunks)
+    cause = ("candidate retrieval (not in top 10)" if r10 is None else
+             "reranking (in top 10, not in final 3)" if r3 is None else "chunks OK - any error is generation")
+    return r10, r3, cause
+trace = pd.DataFrame([{"qid": q["qid"], f"rank in {BEST} top 10": r10, "rank in final 3": r3, "where the span was lost": cause,
+                       "judge": f"{v.correct} / supported={v.supported}"}
+                      for q, b, a, (_, v) in zip(queries, before10, after3, verdicts.iterrows())
+                      for r10, r3, cause in [stage(q, b, a)]])
+trace.to_csv(config.RESULTS / "d2_failure_trace.csv", index=False)
+display(trace)
 flagged = verdicts[(verdicts.correct != "correct") | (verdicts.supported != "yes")]
 for _, v in flagged.iterrows():
     i = next(k for k, q in enumerate(queries) if q["qid"] == v.qid)
-    span_in = any(is_hit(c.text, queries[i]["answer_span"]) for c in contexts[i])
     display(Markdown(f"**{v.qid} — {queries[i]['query']}**  \nJudge: {v.correct}, supported = {v.supported}  \n"
                      f"Answer: {answers[i]}  \nExpected: {queries[i]['expected_answer']}  \n"
-                     f"Answer span in the 3 chunks: **{span_in}** → likely cause: **{'generation' if span_in else 'retrieval'}**"))
+                     f"Where the span was lost: **{trace.loc[i, 'where the span was lost']}**"))
     for n, c in enumerate(contexts[i], 1):
         print(f"[{n}] ({c.source}) {' '.join(c.text.split())}\n")
 if flagged.empty:
@@ -421,7 +450,36 @@ md(r"""
 """ + PENDING + r"""
 
 ### D2.4 Suggested fix (1 mark)
-""" + PENDING)
+""" + PENDING + r"""
+
+**Testing the retrieval part of the fix** (retrieval and reranking only, no generation). The same cross-encoder reranks a pool that combines the dense top 10 and the BM25 top 10, and keeps the top 3. This is compared with the pipeline used above (BM25 top 10 → top 3).
+""")
+
+code(r"""
+reranker = rr.load_reranker()
+def pooled(q):
+    pool = list(dict.fromkeys([c for c, _ in dense.search(q["query"], 10)] + [c for c, _ in bm25.search(q["query"], 10)]))
+    return rr.rerank(reranker, q["query"], [(c, 0.0) for c in pool], chunks, keep=3), len(pool)
+pooled(queries[0])                                             # warm-up
+pool_res, pool_ms, pool_sizes = [], [], []
+for q in queries:
+    t0 = time.perf_counter(); res, n = pooled(q); pool_ms.append(1000 * (time.perf_counter() - t0))
+    pool_res.append(res); pool_sizes.append(n)
+cur_ms = []
+for q in queries:
+    t0 = time.perf_counter(); rr.rerank(reranker, q["query"], methods[BEST].search(q["query"], 10), chunks, keep=3)
+    cur_ms.append(1000 * (time.perf_counter() - t0))
+fix_table = pd.DataFrame({"Pipeline": [f"{BEST} top 10 -> rerank -> top 3 (used above)", "dense top 10 + BM25 top 10 -> rerank -> top 3"],
+                          "Hit rate@1 (%)": [retrieval.hit_at(after3, queries, chunks, 1), retrieval.hit_at(pool_res, queries, chunks, 1)],
+                          "Hit rate@3 (%)": [retrieval.hit_at(after3, queries, chunks, 3), retrieval.hit_at(pool_res, queries, chunks, 3)],
+                          "Candidates reranked (avg)": [10, float(np.mean(pool_sizes))],
+                          "Retrieval + rerank time per query (ms)": [round(float(np.mean(cur_ms)), 1), round(float(np.mean(pool_ms)), 1)]})
+fix_table.to_csv(config.RESULTS / "d2_fix_test.csv", index=False)
+display(fix_table)
+display(pd.DataFrame({"qid": [q["qid"] for q in queries],
+                      "rank in final 3 (used above)": [retrieval.first_hit_rank(a, q, chunks) for a, q in zip(after3, queries)],
+                      "rank in final 3 (pooled)": [retrieval.first_hit_rank(p, q, chunks) for p, q in zip(pool_res, queries)]}))
+""")
 
 md(r"""
 ## Export

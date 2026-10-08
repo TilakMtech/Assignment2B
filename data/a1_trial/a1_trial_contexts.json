@@ -1,0 +1,150 @@
+{
+  "note": "Contexts the Assignment 1 model received in its trial run (lab run 1, same pipeline as run 2: 500-token chunks, BM25 top 10 -> cross-encoder top 3, prompt GEN_TEMPLATE_V1). Chunk ids refer to chunk_fixed(docs, bge tokenizer, 500).",
+  "chunk_size": 500,
+  "prompt_version": "GEN_TEMPLATE_V1",
+  "contexts": {
+    "Q1": {
+      "query": "Who is covered by Niramai's Code of Conduct?",
+      "chunk_ids": [
+        636,
+        87,
+        407
+      ],
+      "sources": [
+        "niramai_code_of_conduct.txt",
+        "ccs_conduct_rules_1964.txt",
+        "indus_university_hr_manual.txt"
+      ]
+    },
+    "Q2": {
+      "query": "Why did Astral establish a vigil mechanism and whistle-blower policy?",
+      "chunk_ids": [
+        32,
+        524,
+        64
+      ],
+      "sources": [
+        "astral_whistle_blower_policy.txt",
+        "khannapaper_vigil_mechanism_policy.txt",
+        "beml_whistle_blower_policy.txt"
+      ]
+    },
+    "Q3": {
+      "query": "How do the two laptop-support arrangements in MyGov's policy differ?",
+      "chunk_ids": [
+        632,
+        627,
+        633
+      ],
+      "sources": [
+        "mygov_talent_development_policy.txt",
+        "mygov_laptop_policy.txt",
+        "mygov_talent_development_policy.txt"
+      ]
+    },
+    "Q4": {
+      "query": "How is eligibility for a laptop or laptop charges determined at MyGov?",
+      "chunk_ids": [
+        627,
+        628,
+        629
+      ],
+      "sources": [
+        "mygov_laptop_policy.txt",
+        "mygov_laptop_policy.txt",
+        "mygov_laptop_policy.txt"
+      ]
+    },
+    "Q5": {
+      "query": "How is a verbal sexual-harassment complaint converted for formal handling at Bajaj Broking?",
+      "chunk_ids": [
+        47,
+        46,
+        51
+      ],
+      "sources": [
+        "bajaj_broking_posh_policy.txt",
+        "bajaj_broking_posh_policy.txt",
+        "bajaj_broking_posh_policy.txt"
+      ]
+    },
+    "Q6": {
+      "query": "How do Bajaj Broking managers' harassment-prevention duties differ from individual employees' duties?",
+      "chunk_ids": [
+        47,
+        46,
+        268
+      ],
+      "sources": [
+        "bajaj_broking_posh_policy.txt",
+        "bajaj_broking_posh_policy.txt",
+        "iim_raipur_hr_policy_service_rules.txt"
+      ]
+    },
+    "Q7": {
+      "query": "How does JioStar's listed harassment scope distinguish verbal from visual conduct?",
+      "chunk_ids": [
+        522,
+        49,
+        76
+      ],
+      "sources": [
+        "jiostar_posh_policy.txt",
+        "bajaj_broking_posh_policy.txt",
+        "bptp_posh_policy.txt"
+      ]
+    },
+    "Q8": {
+      "query": "Does JioStar's harassment scope include retaliation for taking part in an investigation?",
+      "chunk_ids": [
+        522,
+        204,
+        523
+      ],
+      "sources": [
+        "jiostar_posh_policy.txt",
+        "ghl_vigil_mechanism_policy.txt",
+        "jiostar_posh_policy.txt"
+      ]
+    },
+    "Q9": {
+      "query": "What initial action does Aurobindo describe after receiving a human-rights complaint?",
+      "chunk_ids": [
+        44,
+        42,
+        58
+      ],
+      "sources": [
+        "aurobindo_human_rights_policy.txt",
+        "aurobindo_human_rights_policy.txt",
+        "bajaj_broking_posh_policy.txt"
+      ]
+    },
+    "Q10": {
+      "query": "How does Aurobindo distinguish the preliminary inquiry from its detailed grievance inquiry?",
+      "chunk_ids": [
+        44,
+        43,
+        42
+      ],
+      "sources": [
+        "aurobindo_human_rights_policy.txt",
+        "aurobindo_human_rights_policy.txt",
+        "aurobindo_human_rights_policy.txt"
+      ]
+    },
+    "Q11": {
+      "query": "Does MyGov allow employees to bring their pet dogs to the office, and what rules apply?",
+      "chunk_ids": [
+        7,
+        632,
+        624
+      ],
+      "sources": [
+        "Leave_Policy.txt",
+        "mygov_talent_development_policy.txt",
+        "mygov_internship_program.txt"
+      ]
+    }
+  }
+}

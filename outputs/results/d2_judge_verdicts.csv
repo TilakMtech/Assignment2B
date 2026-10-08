@@ -1,41 +1,41 @@
 qid,query,correct,supported,reason,unsupported quote,raw judge output
-Q1,Who is covered by Niramai's Code of Conduct?,correct,yes,The system answer states the main point of the expected answer and is supported by the retrieved chunk [1].,None,"CORRECT: correct
+Q1,Who is covered by Niramai's Code of Conduct?,partly correct,yes,"The system answer states some of the expected answer's points but misses an important one, specifically the scope of applicability, which includes third-party employees, and adds an error, stating ""including third party employees"" which is not mentioned in the retrieved chunks.","""including third party employees""","CORRECT: partly correct
 SUPPORTED: yes
-REASON: The system answer states the main point of the expected answer and is supported by the retrieved chunk [1].
+REASON: The system answer states some of the expected answer's points but misses an important one, specifically the scope of applicability, which includes third-party employees, and adds an error, stating ""including third party employees"" which is not mentioned in the retrieved chunks.
+UNSUPPORTED: ""including third party employees"""
+Q2,Why did Astral establish a vigil mechanism and whistle-blower policy?,partly correct,yes,"The system answer states some of the expected answer's points but misses an important one, specifically the objective of the policy, which is to extract maximum information on activities affecting the company, its values, philosophy, principles, and beliefs, including violations of legal or regulatory requirements.","""without fear of retaliation""","CORRECT: partly correct
+SUPPORTED: yes
+REASON: The system answer states some of the expected answer's points but misses an important one, specifically the objective of the policy, which is to extract maximum information on activities affecting the company, its values, philosophy, principles, and beliefs, including violations of legal or regulatory requirements.
+UNSUPPORTED: ""without fear of retaliation"""
+Q3,How do the two laptop-support arrangements in MyGov's policy differ?,partly correct,yes,The system answer correctly identifies two key points from the expected answer but misses the main point about the BYOD model and the organization-owned laptop for advanced technical capabilities.,None,"CORRECT: partly correct
+SUPPORTED: yes
+REASON: The system answer correctly identifies two key points from the expected answer but misses the main point about the BYOD model and the organization-owned laptop for advanced technical capabilities.
 UNSUPPORTED: None"
-Q2,Why did Astral establish a vigil mechanism and whistle-blower policy?,partly correct,yes,"The system answer states some of the expected answer's points but misses an important one, specifically the objective of the policy, which is to extract maximum information on activities affecting the Company, its values, philosophy, principles, and beliefs, including violations of legal or regulatory requirements, incorrect or misrepresentation of financial statements, reports, etc.","""As stated in [1]""","CORRECT: partly correct
+Q4,How is eligibility for a laptop or laptop charges determined at MyGov?,partly correct,yes,"The system answer partially states the expected answer's points but misses an important one, specifically the provisions depending on the assigned category.",None,"CORRECT: partly correct
 SUPPORTED: yes
-REASON: The system answer states some of the expected answer's points but misses an important one, specifically the objective of the policy, which is to extract maximum information on activities affecting the Company, its values, philosophy, principles, and beliefs, including violations of legal or regulatory requirements, incorrect or misrepresentation of financial statements, reports, etc.
-UNSUPPORTED: ""As stated in [1]"""
-Q3,How do the two laptop-support arrangements in MyGov's policy differ?,wrong,yes,The system answer does not contradict the main point of the expected answer and can be found in the retrieved chunks.,None,"CORRECT: wrong
-SUPPORTED: yes
-REASON: The system answer does not contradict the main point of the expected answer and can be found in the retrieved chunks.
+REASON: The system answer partially states the expected answer's points but misses an important one, specifically the provisions depending on the assigned category.
 UNSUPPORTED: None"
-Q4,How is eligibility for a laptop or laptop charges determined at MyGov?,correct,yes,The system answer accurately states the main point of the expected answer and is supported by the retrieved chunk [1].,None,"CORRECT: correct
+Q5,How is a verbal sexual-harassment complaint converted for formal handling at Bajaj Broking?,partly correct,yes,"The system answer states some of the expected answer's points but misses an important one, specifically the requirement for the complainant to be informed of their rights and the process for lodging a complaint.","""the consent of the complainant will be obtained""","CORRECT: partly correct
 SUPPORTED: yes
-REASON: The system answer accurately states the main point of the expected answer and is supported by the retrieved chunk [1].
+REASON: The system answer states some of the expected answer's points but misses an important one, specifically the requirement for the complainant to be informed of their rights and the process for lodging a complaint.
+UNSUPPORTED: ""the consent of the complainant will be obtained"""
+Q6,How do Bajaj Broking managers' harassment-prevention duties differ from individual employees' duties?,partly correct,yes,"The system answer states some of the expected answer's points but misses an important one, specifically the managers' duties to ensure their teams understand zero tolerance and prevent victimization of complainants, respondents, and witnesses.","Specifically, the IC (Investigation Committee)","CORRECT: partly correct
+SUPPORTED: yes
+REASON: The system answer states some of the expected answer's points but misses an important one, specifically the managers' duties to ensure their teams understand zero tolerance and prevent victimization of complainants, respondents, and witnesses.
+UNSUPPORTED: Specifically, the IC (Investigation Committee)"
+Q7,How does JioStar's listed harassment scope distinguish verbal from visual conduct?,wrong,no,"The system answer ""Not found in the documents"" contradicts the main point of the expected answer, which states the policy covers both spoken behavior and material displayed or shown in the workplace.",None,"CORRECT: wrong
+SUPPORTED: no
+REASON: The system answer ""Not found in the documents"" contradicts the main point of the expected answer, which states the policy covers both spoken behavior and material displayed or shown in the workplace.
 UNSUPPORTED: None"
-Q5,How is a verbal sexual-harassment complaint converted for formal handling at Bajaj Broking?,correct,yes,The system answer states the main point of the expected answer and is supported by the retrieved chunk [3].,None,"CORRECT: correct
+Q8,Does JioStar's harassment scope include retaliation for taking part in an investigation?,partly correct,yes,"The system answer states that retaliation for taking part in an investigation is included in the scope of the policy, which is supported by the retrieved chunks.",None,"CORRECT: partly correct
 SUPPORTED: yes
-REASON: The system answer states the main point of the expected answer and is supported by the retrieved chunk [3].
+REASON: The system answer states that retaliation for taking part in an investigation is included in the scope of the policy, which is supported by the retrieved chunks.
 UNSUPPORTED: None"
-Q6,How do Bajaj Broking managers' harassment-prevention duties differ from individual employees' duties?,wrong,yes,"The system answer does not contradict the main point of the expected answer, but it is missing the main point.",None,"CORRECT: wrong
+Q9,What initial action does Aurobindo describe after receiving a human-rights complaint?,partly correct,yes,"The system answer states some of the expected answer's points but misses an important one, specifically the description of the preliminary enquiry process involving Corporate HR, Unit HR, concerned Department HOD, and the detailed enquiry by having aggrieved employee, contractors, suppliers, vendors from whom the complaint is received.",None,"CORRECT: partly correct
 SUPPORTED: yes
-REASON: The system answer does not contradict the main point of the expected answer, but it is missing the main point.
+REASON: The system answer states some of the expected answer's points but misses an important one, specifically the description of the preliminary enquiry process involving Corporate HR, Unit HR, concerned Department HOD, and the detailed enquiry by having aggrieved employee, contractors, suppliers, vendors from whom the complaint is received.
 UNSUPPORTED: None"
-Q7,How does JioStar's listed harassment scope distinguish verbal from visual conduct?,correct,yes,The system answer correctly states the main point of the expected answer and is supported by the retrieved chunks.,None,"CORRECT: correct
+Q10,How does Aurobindo distinguish the preliminary inquiry from its detailed grievance inquiry?,partly correct,yes,"The system answer states some of the expected answer's points but misses an important one, specifically the distinction between preliminary and detailed enquiry in terms of the parties involved and the nature of the investigation.",None,"CORRECT: partly correct
 SUPPORTED: yes
-REASON: The system answer correctly states the main point of the expected answer and is supported by the retrieved chunks.
-UNSUPPORTED: None"
-Q8,Does JioStar's harassment scope include retaliation for taking part in an investigation?,partly correct,yes,"The system answer states that retaliation for taking part in an investigation is included in the scope, but misses the important point that it also covers adverse responses to raising concerns.","""f. Retaliation for having reported or threatened to report harassment, or for opposing unlawful harassment, or for participating in an investigation;""","CORRECT: partly correct
-SUPPORTED: yes
-REASON: The system answer states that retaliation for taking part in an investigation is included in the scope, but misses the important point that it also covers adverse responses to raising concerns.
-UNSUPPORTED: ""f. Retaliation for having reported or threatened to report harassment, or for opposing unlawful harassment, or for participating in an investigation;"""
-Q9,What initial action does Aurobindo describe after receiving a human-rights complaint?,correct,yes,The system answer states the main point of the expected answer and is supported by the retrieved chunk [5.2] which describes the preliminary enquiry process.,None,"CORRECT: correct
-SUPPORTED: yes
-REASON: The system answer states the main point of the expected answer and is supported by the retrieved chunk [5.2] which describes the preliminary enquiry process.
-UNSUPPORTED: None"
-Q10,How does Aurobindo distinguish the preliminary inquiry from its detailed grievance inquiry?,correct,yes,"The system answer states the main point(s) of the expected answer and contradicts nothing in it, and every statement can be found in (or directly follows from) the retrieved chunks.",None,"CORRECT: correct
-SUPPORTED: yes
-REASON: The system answer states the main point(s) of the expected answer and contradicts nothing in it, and every statement can be found in (or directly follows from) the retrieved chunks.
+REASON: The system answer states some of the expected answer's points but misses an important one, specifically the distinction between preliminary and detailed enquiry in terms of the parties involved and the nature of the investigation.
 UNSUPPORTED: None"

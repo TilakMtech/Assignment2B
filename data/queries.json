@@ -7,7 +7,8 @@
       "expected_answer": "The code applies to employees appointed on Niramai Health Analytix's payroll. It guides their behavior and attitudes during employment and provides ethical guidance for carrying out official responsibilities, rather than describing a separate policy for outside stakeholders.",
       "question_type": "factual",
       "source": "niramai_code_of_conduct.txt",
-      "answer_span": "is applicable to all the employees appointed on the payroll of Niramai Health Analytix Private Limited"
+      "answer_span": "is applicable to all the employees appointed on the payroll of Niramai Health Analytix Private Limited",
+      "span_words": 16
     },
     {
       "qid": "Q2",
@@ -16,7 +17,8 @@
       "expected_answer": "Astral describes the mechanism as a means for directors and employees to raise concerns about unethical conduct, suspected or actual fraud, and code violations. It also supports corporate governance by helping detect and deter fraudulent activity.",
       "question_type": "factual",
       "source": "astral_whistle_blower_policy.txt",
-      "answer_span": "Such vigil mechanism not only helps to detect fraud in organizations, but is also used as a corporate governance tool, which prevents and deters fraudulent activity"
+      "answer_span": "mandates that every Listed Company to establish a mechanism for employees/directors to report concerns about unethical behavior, actual or suspected fraud or violation of the company’s code of conduct or ethics policy. ❖ Such vigil mechanism not only helps to detect fraud in organizations, but is also used as a corporate governance tool, which prevents and deters fraudulent activity",
+      "span_words": 59
     },
     {
       "qid": "Q3",
@@ -25,7 +27,8 @@
       "expected_answer": "One arrangement provides a fixed monthly payment for employees using their own laptops under the BYOD model. The other supplies an organization-owned laptop for roles needing advanced technical capabilities, with applicable provisions depending on the device category allocated.",
       "question_type": "comparative",
       "source": "mygov_laptop_policy.txt",
-      "answer_span": "provision of a fixed monthly disbursement (“Laptop Charges”) for use of personal laptops"
+      "answer_span": "(a) provision of a fixed monthly disbursement (“Laptop Charges”) for use of personal laptops (Bring Your Own Device / BYOD model); and (b) provision of organization -owned laptops for specific roles requiring advanced technical capabilities",
+      "span_words": 35
     },
     {
       "qid": "Q4",
@@ -34,7 +37,8 @@
       "expected_answer": "Eligibility depends on the employee's role, job requirements and technical needs, and is decided by the department head or immediate supervisor. The policy covers both payments for personal-laptop use and organization-owned devices, with provisions depending on the assigned category.",
       "question_type": "procedural",
       "source": "mygov_laptop_policy.txt",
-      "answer_span": "Eligibility will be determined by the department head or immediate supervisor"
+      "answer_span": "based on their role, job requirements, and technical needs. Eligibility will be determined by the department head or immediate supervisor",
+      "span_words": 20
     },
     {
       "qid": "Q5",
@@ -43,7 +47,8 @@
       "expected_answer": "When formal intervention is warranted, the complaint must be put in writing. If the complaint was initially verbal, the person receiving it writes it down and obtains the complainant's consent before it enters the formal redressal process.",
       "question_type": "procedural",
       "source": "bajaj_broking_posh_policy.txt",
-      "answer_span": "In case of a verbal complaint, the complaint will be converted to a written complaint by the receiver of the complaint and consent of the complainant will be obtained"
+      "answer_span": "In case of a verbal complaint, the complaint will be converted to a written complaint by the receiver of the complaint and consent of the complainant will be obtained",
+      "span_words": 29
     },
     {
       "qid": "Q6",
@@ -52,7 +57,8 @@
       "expected_answer": "Individual employees should refuse participation in harassment, support someone rejecting unwelcome behavior, and act as witnesses when a complaint is lodged. Managers additionally must ensure their teams understand zero tolerance and prevent victimization of complainants, respondents and witnesses.",
       "question_type": "comparative",
       "source": "bajaj_broking_posh_policy.txt",
-      "answer_span": "Responsibilities of Managers: All managers at BFSL must ensure that no employee is subject to harassment"
+      "answer_span": "Responsibilities of Individual: It is the responsibility of all employees to respect the rights of all employees and to never encourage harassment against employees. It can be done by: R efusing to participate in any activity which constitutes harassment against any person ; Supporting the person to reject unwelcome behavior ; Acting as a witness if any person, being harassed, decides to lodge a complaint with the internal committee iv. I f you see something, say something v. If any employee notices inappropriate or unwelcome behavior in the work environment, they are encouraged to advise the person to modify or stop the same. Often, some behaviors are not intentional. While this does not make it acceptable, it does give the pe rson behaving inappropriately, the opportunity to modify or stop their offensive behavior. vi. Report t o D AC vii. If an employee notices inappropriate or unwelcome behavior in the work environment, they are encouraged to report the same to the ethics and compliance team by following reporting mechanism mentioned in clause 6.3. 7 4.1.1 Responsibilities of Managers: All managers at BFSL must ensure that no employee is subject to harassment. They must also ensure that their reportees are appraised that BFSL has zero tolerance against sexual harassment at the workplace and that the complain ant, respondent/s, or witnesses are not victimized in any manner",
+      "span_words": 225
     },
     {
       "qid": "Q7",
@@ -61,7 +67,8 @@
       "expected_answer": "Verbal examples include derogatory jokes, sexual comments and unwanted advances, whereas visual examples include offensive pictures, posters, drawings and gestures. The policy therefore covers both spoken behavior and material displayed or shown in the workplace.",
       "question_type": "comparative",
       "source": "jiostar_posh_policy.txt",
-      "answer_span": "b. Visual conduct such as derogatory and/or sexually oriented posters, offensive or obscene photography, cartoons, drawings or gestures"
+      "answer_span": "a. Verbal conduct such as epithets, derogatory jokes or comments, slurs or unwanted sexual advances, invitations or comments, questions about a person’s sexual practices, or gossiping about sexual relations, remarks about an individual’s body, colour, physical characteristics, or appearance; b. Visual conduct such as derogatory and/or sexually oriented posters, offensive or obscene photography, cartoons, drawings or gestures",
+      "span_words": 57
     },
     {
       "qid": "Q8",
@@ -70,7 +77,8 @@
       "expected_answer": "Yes, the listed scope includes retaliation for reporting or threatening to report harassment, opposing unlawful harassment, or participating in an investigation. It therefore covers adverse responses to raising concerns as well as the underlying unwelcome conduct.",
       "question_type": "factual",
       "source": "jiostar_posh_policy.txt",
-      "answer_span": "Retaliation for having reported or threatened to report harassment, or for opposing unlawful harassment, or for participating in an investigation"
+      "answer_span": "Retaliation for having reported or threatened to report harassment, or for opposing unlawful harassment, or for participating in an investigation",
+      "span_words": 20
     },
     {
       "qid": "Q9",
@@ -79,7 +87,8 @@
       "expected_answer": "Complaints can arrive through humanrights@aurobindo.com or the Corporate HR hotline numbered 77666. A confidential preliminary inquiry involving the complainant is to occur within three days to establish whether there is an initial case for further examination.",
       "question_type": "procedural",
       "source": "aurobindo_human_rights_policy.txt",
-      "answer_span": "Preliminary enquiry will be conducted by involving the complainant in such a way that the matter will be dealt with utmost confidentiality within 3days time"
+      "answer_span": "Any complaint that is received through email address humanrights@aurobindo.com or Hotline Number 77666- Corporate HR would be addressed in a systematic manner. ➢ Preliminary enquiry will be conducted by involving the complainant in such a way that the matter will be dealt with utmost confidentiality within 3days time. Preliminary enquiry will enable the Management to find out whether there is a prima facie case or not",
+      "span_words": 66
     },
     {
       "qid": "Q10",
@@ -88,7 +97,8 @@
       "expected_answer": "The preliminary stage confidentially involves the complainant and checks whether an initial case exists within three days. The detailed inquiry brings together Corporate HR, Unit HR and the concerned department head with the affected party, followed by discussions aimed at an amicable resolution.",
       "question_type": "comparative",
       "source": "aurobindo_human_rights_policy.txt",
-      "answer_span": "Corporate HR, Unit HR, concerned Department HOD hold detailed enquiry"
+      "answer_span": "Preliminary enquiry will be conducted by involving the complainant in such a way that the matter will be dealt with utmost confidentiality within 3days time. Preliminary enquiry will enable the Management to find out whether there is a prima facie case or not. ➢ Corporate HR, Unit HR, concerned Department HOD hold detailed enquiry by having aggrieved employee, contractors, suppliers, vendors from whom the complaint is received. ➢ Corporate/ Unit HR will hold multipartite discussion with the intention of concluding the matter that is being brought to the attention of Management amicably",
+      "span_words": 92
     }
   ],
   "out_of_corpus": {
