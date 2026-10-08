@@ -1,0 +1,123 @@
+[
+  {
+    "qid": "Q1",
+    "query": "Who is covered by Niramai's Code of Conduct?",
+    "expected_answer": "The code applies to employees appointed on Niramai Health Analytix's payroll. It guides their behavior and attitudes during employment and provides ethical guidance for carrying out official responsibilities, rather than describing a separate policy for outside stakeholders.",
+    "answer": "The Code of Conduct applies to all the employees appointed on the payroll of Niramai Health Analytix Private Limited. [1]",
+    "chunk_ids": [
+      636,
+      87,
+      407
+    ]
+  },
+  {
+    "qid": "Q2",
+    "query": "Why did Astral establish a vigil mechanism and whistle-blower policy?",
+    "expected_answer": "Astral describes the mechanism as a means for directors and employees to raise concerns about unethical conduct, suspected or actual fraud, and code violations. It also supports corporate governance by helping detect and deter fraudulent activity.",
+    "answer": "Astral Limited established a vigil mechanism and whistle-blower policy because it is mandated by the Companies Act, 2013 read with rules made thereunder and regulation 22 of SEBI (Listing Obligations and Disclosure requirements) regulations, 2015, as stated in [1]. Additionally, it aligns with the company's belief in conducting its affairs in a fair and transparent manner by adopting the highest standards of professionalism, honesty, integrity, and ethical behavior, as mentioned in [1].",
+    "chunk_ids": [
+      32,
+      524,
+      64
+    ]
+  },
+  {
+    "qid": "Q3",
+    "query": "How do the two laptop-support arrangements in MyGov's policy differ?",
+    "expected_answer": "One arrangement provides a fixed monthly payment for employees using their own laptops under the BYOD model. The other supplies an organization-owned laptop for roles needing advanced technical capabilities, with applicable provisions depending on the device category allocated.",
+    "answer": "Not found in the documents.",
+    "chunk_ids": [
+      632,
+      627,
+      633
+    ]
+  },
+  {
+    "qid": "Q4",
+    "query": "How is eligibility for a laptop or laptop charges determined at MyGov?",
+    "expected_answer": "Eligibility depends on the employee's role, job requirements and technical needs, and is decided by the department head or immediate supervisor. The policy covers both payments for personal-laptop use and organization-owned devices, with provisions depending on the assigned category.",
+    "answer": "Eligibility for a laptop or laptop charges at MyGov is determined by the department head or immediate supervisor based on the employee's role, job requirements, and technical needs. [1]",
+    "chunk_ids": [
+      627,
+      628,
+      629
+    ]
+  },
+  {
+    "qid": "Q5",
+    "query": "How is a verbal sexual-harassment complaint converted for formal handling at Bajaj Broking?",
+    "expected_answer": "When formal intervention is warranted, the complaint must be put in writing. If the complaint was initially verbal, the person receiving it writes it down and obtains the complainant's consent before it enters the formal redressal process.",
+    "answer": "A verbal sexual-harassment complaint is converted to a written complaint when it is received by the ethics and compliance team. Additionally, the receiver of the complaint must obtain the consent of the complainant for this conversion [3].",
+    "chunk_ids": [
+      47,
+      46,
+      51
+    ]
+  },
+  {
+    "qid": "Q6",
+    "query": "How do Bajaj Broking managers' harassment-prevention duties differ from individual employees' duties?",
+    "expected_answer": "Individual employees should refuse participation in harassment, support someone rejecting unwelcome behavior, and act as witnesses when a complaint is lodged. Managers additionally must ensure their teams understand zero tolerance and prevent victimization of complainants, respondents and witnesses.",
+    "answer": "Not found in the documents.",
+    "chunk_ids": [
+      47,
+      46,
+      268
+    ]
+  },
+  {
+    "qid": "Q7",
+    "query": "How does JioStar's listed harassment scope distinguish verbal from visual conduct?",
+    "expected_answer": "Verbal examples include derogatory jokes, sexual comments and unwanted advances, whereas visual examples include offensive pictures, posters, drawings and gestures. The policy therefore covers both spoken behavior and material displayed or shown in the workplace.",
+    "answer": "JioStar's scope distinguishes verbal from visual conduct by listing specific examples for each category. For verbal conduct, it includes \"epithets, derogatory jokes or comments, slurs or unwanted sexual advances, invitations or comments, questions about a person’s sexual practices, or gossiping about sexual relations.\" For visual conduct, it specifies \"derogatory and/or sexually oriented posters, offensive or obscene photography, cartoons, drawings or gestures, display of sexually suggestive or lewd objects.\" [1]",
+    "chunk_ids": [
+      522,
+      49,
+      76
+    ]
+  },
+  {
+    "qid": "Q8",
+    "query": "Does JioStar's harassment scope include retaliation for taking part in an investigation?",
+    "expected_answer": "Yes, the listed scope includes retaliation for reporting or threatening to report harassment, opposing unlawful harassment, or participating in an investigation. It therefore covers adverse responses to raising concerns as well as the underlying unwelcome conduct.",
+    "answer": "Not found in the documents.",
+    "chunk_ids": [
+      522,
+      204,
+      523
+    ]
+  },
+  {
+    "qid": "Q9",
+    "query": "What initial action does Aurobindo describe after receiving a human-rights complaint?",
+    "expected_answer": "Complaints can arrive through humanrights@aurobindo.com or the Corporate HR hotline numbered 77666. A confidential preliminary inquiry involving the complainant is to occur within three days to establish whether there is an initial case for further examination.",
+    "answer": "Aurobindo describes that after receiving a human-rights complaint, the preliminary enquiry will be conducted by involving the complainant in a way that the matter will be dealt with utmost confidentiality within 3 days time. [5.2]",
+    "chunk_ids": [
+      44,
+      42,
+      58
+    ]
+  },
+  {
+    "qid": "Q10",
+    "query": "How does Aurobindo distinguish the preliminary inquiry from its detailed grievance inquiry?",
+    "expected_answer": "The preliminary stage confidentially involves the complainant and checks whether an initial case exists within three days. The detailed inquiry brings together Corporate HR, Unit HR and the concerned department head with the affected party, followed by discussions aimed at an amicable resolution.",
+    "answer": "The preliminary enquiry involves initial contact with the complainant to understand the nature of the issue and determine if there is a prima facie case. It is conducted by involving the complainant in a confidential manner within 3 days. In contrast, the detailed enquiry involves more comprehensive investigation by engaging the complainant, contractors, suppliers, and others involved in the complaint. Detailed enquiries are conducted by Corporate HR, Unit HR, and the concerned Department HOD, aiming to reach a conclusion through multipartite discussions. [5.3]",
+    "chunk_ids": [
+      44,
+      43,
+      42
+    ]
+  },
+  {
+    "qid": "Q11",
+    "query": "Does MyGov allow employees to bring their pet dogs to the office, and what rules apply?",
+    "expected_answer": "Not found in the documents (no policy in the corpus covers pets at the office).",
+    "answer": "Not found in the documents.",
+    "chunk_ids": [
+      7,
+      632,
+      624
+    ]
+  }
+]

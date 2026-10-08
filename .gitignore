@@ -3,3 +3,4 @@ __pycache__/
 .ipynb_checkpoints/
 hf_cache/
 .DS_Store
+run.log

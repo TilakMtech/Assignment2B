@@ -26,6 +26,8 @@ A small, complete Retrieval-Augmented Generation system built on the Assignment 
 * **Queries:** 10 queries with expected answers from the Assignment 1 evaluation set (`data/a1_eval/instruction_eval.jsonl`).
 * **Generator:** the fine-tuned Assignment 1 model (TinyLlama-1.1B CPT checkpoint + QLoRA Adapter B) is tried first in D1.
 
+**Generator and judge used after the switch:** `Qwen2.5-3B-Instruct` generates and `Llama-3.2-3B-Instruct` judges, both pre-quantised to 4-bit. These are the 3B members of the two model families the brief names. The 7–8B versions (about 5.5 GB each) do not fit the lab server's 4.9 GB home disk, and the lab quota did not allow a server with a bigger volume. The code runs the 7–8B models unchanged when `GENERATOR` / `JUDGE` are set.
+
 **Code:** the pipeline lives in `src/rag/`; this notebook calls it and shows every result:
 * `data.py` — chunking and the hit test;
 * `retrieval.py` — dense, BM25 and RRF search;
@@ -157,7 +159,12 @@ display(pd.Series(a1_report).to_frame("value"))
 
 md(r"""
 ### A2.2 Chosen chunk size and why (1 mark)
-""" + PENDING)
+**500 tokens.** It has the highest hit rate@3: 80 %, against 70 % at 400 tokens and 40 % at 100. The other two sizes lose for different reasons:
+* **100 tokens:** a clause is cut into pieces. One answer span does not fit in any single chunk, and the short chunks lack the surrounding wording that matches the questions.
+* **400 tokens:** close, but a lower hit rate (70 %).
+
+The cost of 500 is about 1,460 tokens of context per query, five times the 100-token setting. That is easy for Qwen2.5 (32 K-token context). For the 2,048-token Assignment 1 model, the full prompt (about 1,200 words) only just fits, which leaves little room for the answer.
+""")
 
 md(r"""
 # Part B — Keyword and hybrid search (4 marks)
@@ -201,7 +208,16 @@ print("Best method for Part C:", BEST)
 
 md(r"""
 ### B4. Which method works best and why, with one example query (1 mark)
-""" + PENDING)
+**BM25.** All three methods put the answer span in the top 3 for 8 of the 10 queries and in the top 5 for 9. BM25 wins on two counts:
+* It ranks the span **first** more often: hit rate@1 is 60 %, against 50 % for dense and hybrid.
+* It is about 6× faster: 1.4 ms per query, against 8.8 ms for dense and 10.4 ms for hybrid.
+
+The questions reuse the policies' own wording and organisation names, which exact-term matching rewards.
+
+**Example — Q5,** "How is a *verbal* sexual-harassment *complaint converted* for formal handling at *Bajaj Broking*?" BM25 ranks the answer chunk 1st because it shares exactly those words ("In case of a verbal complaint, the complaint will be converted …"); dense search ranks it 5th, below other Bajaj POSH chunks with similar meaning.
+
+**Dense still has strengths.** Q6 (managers' duties) is found only by dense search (rank 3). With equal hit@3, RRF did not combine the two strengths here: hybrid matched dense on hit@1 and was the slowest.
+""")
 
 md(r"""
 # Part C — Reranking (4 marks)
@@ -248,7 +264,16 @@ display(rerank_table)
 
 md(r"""
 ### C4. Did reranking help? (1 mark)
-""" + PENDING)
+**Not for the first result.** Hit rate@1 is 60 % both before and after reranking. The cross-encoder changed the top result for 3 of 10 queries (rank change rate 30 %):
+* **One gain:** Q9's answer chunk moved from 2nd to 1st.
+* **Two losses:**
+  * Q5's answer chunk dropped from 1st to 3rd.
+  * In Q3, a Talent-Development-policy chunk moved above the laptop-policy chunks.
+
+**It did help the context the generator reads.** Hit rate@3 rose from 80 % to 90 %, because Q8's answer chunk moved from rank 4 into the top 3.
+
+**Cost:** 22.9 ms per query, about 16× the BM25 search itself, but negligible next to answer generation (seconds per query). It is worth keeping for the top-3 context and not worth it for top-1 accuracy alone.
+""")
 
 md(r"""
 # Part D — Generate and check answers (7 marks)
@@ -292,18 +317,32 @@ if (config.A1_BASE / "config.json").exists() and (config.A1_ADAPTER / "adapter_c
     display(a1_answers)
     print(f"A1 model: cites a chunk in {a1_answers['cites a chunk'].sum()}/11 answers; "
           f"says 'Not found' for the out-of-corpus query: {bool(a1_answers['says Not found'].iloc[-1])}")
+elif (config.RESULTS / "d1_a1_model_answers.csv").exists():   # model removed from the lab disk after an earlier run
+    a1_answers = pd.read_csv(config.RESULTS / "d1_a1_model_answers.csv")
+    print(f"Assignment 1 model files are no longer under {config.A1_PROJECT}; showing its saved answers from the earlier run "
+          "(same prompts, greedy decoding).")
+    display(a1_answers)
+    print(f"A1 model: cites a chunk in {a1_answers['cites a chunk'].sum()}/11 answers; "
+          f"says 'Not found' for the out-of-corpus query: {bool(a1_answers['says Not found'].iloc[-1])}")
 else:
     print(f"Assignment 1 model not found under {config.A1_PROJECT} - set A1_PROJECT to the CorpPolicyLM folder.")
 """)
 
 md(r"""
-**Problem observed with the Assignment 1 model, and the switch:** """ + PENDING + r"""
+**Problem observed with the Assignment 1 model, and the switch.** The Assignment 1 model (TinyLlama-1.1B CPT + Adapter B) ignored both the chunks and the instructions:
+* It cited a chunk in **0 of 11** answers and never replied "Not found".
+* For the out-of-corpus question it invented a policy: *"The company is a pet-friendly workplace, and employees are free to bring their pets to the office. However, the company requires that the animal is kept on a leash …"*
+* Other answers contradict their chunks. In Q1 it says Niramai's code covers temporary, part-time and casual staff and contractors; chunk [1] says employees on the payroll.
+* Some answers degenerate into repetition (Q2, Q6).
+
+As the brief allows, generation therefore switches to the instruct model **Qwen2.5-3B-Instruct** (4-bit), with the same prompt and the same top-3 chunks.
 
 ### D1.2 Answers of the generator (1 mark) and D1.3 the out-of-corpus query (1 mark)
 """)
 
 code(r"""
 print(f"Generator: {config.GENERATOR_NAME}  [{config.GENERATOR}]  - free disk before download: {gen.free_gb():.1f} GiB")
+gen.make_room(config.GENERATOR)
 g_model, g_tok = gen.load_instruct(config.GENERATOR)
 answers = [gen.chat(g_model, g_tok, gen.GEN_SYSTEM, p) for p in prompts]
 del g_model; gen.free()
@@ -323,9 +362,13 @@ print("Says 'Not found in the documents':", gen.says_not_found(answers[-1]))
 md(r"""
 ## D2. Check the answers with an LLM judge (4 marks)
 ### D2.1 Judge prompt and results (1 mark)
-**Judge model:** `Llama-3.1-8B-Instruct` (4-bit), a different model family from the generator (Qwen2.5). Decoding is greedy, so it behaves like temperature 0 and gives the same verdict every time.
+**Judge model:** Llama (printed below), a different model family from the Qwen generator. Decoding is greedy, so it behaves like temperature 0 and gives the same verdict every time.
 
 The judge is given the question, the expected answer from the Assignment 1 evaluation set, the three retrieved chunks and the generator's answer. It returns four fixed lines (`CORRECT`, `SUPPORTED`, `REASON`, `UNSUPPORTED`), which are parsed with code.
+
+**Constrained decoding of the format.** On a first run, the 3B judge left the CORRECT and SUPPORTED fields empty in all 10 replies. The reply is therefore built line by line from the same prompt:
+* **Labels:** for `CORRECT` and `SUPPORTED`, the judge chooses among the allowed labels only, taking the label whose first token it rates most probable. This is argmax, i.e. temperature 0.
+* **Explanations:** `REASON` and `UNSUPPORTED` are then generated greedily, conditioned on the chosen labels.
 """)
 
 code(r"""
@@ -334,14 +377,14 @@ print(gen.JUDGE_TEMPLATE)
 """)
 
 code(r"""
-if gen.free_gb() < 7:   # the lab volume holds one 4-bit 7-8B model at a time
-    print(f"Only {gen.free_gb():.1f} GiB free - removing the generator from the cache:", gen.delete_cached(config.GENERATOR))
+gen.make_room(config.JUDGE, drop=config.GENERATOR)   # small disk: one model at a time (answers are already saved)
 print(f"Judge: {config.JUDGE_NAME}  [{config.JUDGE}]")
 j_model, j_tok = gen.load_instruct(config.JUDGE)
-raw = [gen.chat(j_model, j_tok, gen.JUDGE_SYSTEM, gen.judge_prompt(q["query"], q["expected_answer"], ctx, a),
-                max_new_tokens=config.JUDGE_MAX_NEW_TOKENS) for q, a, ctx in zip(queries, answers[:10], contexts[:10])]
+judged = [gen.judge(j_model, j_tok, gen.judge_prompt(q["query"], q["expected_answer"], ctx, a))
+          for q, a, ctx in zip(queries, answers[:10], contexts[:10])]
 del j_model; gen.free()
-verdicts = pd.DataFrame([{"qid": q["qid"], "query": q["query"], **gen.parse_judge(r)} for q, r in zip(queries, raw)])
+verdicts = pd.DataFrame([{"qid": q["qid"], "query": q["query"], **v} for q, (v, _) in zip(queries, judged)])
+raw = [r for _, r in judged]
 verdicts["raw judge output"] = raw
 verdicts.to_csv(config.RESULTS / "d2_judge_verdicts.csv", index=False)
 display(verdicts[["qid", "query", "correct", "supported", "reason", "unsupported quote"]])

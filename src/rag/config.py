@@ -40,12 +40,14 @@ TOP_K = 5
 A1_PROJECT = Path(_env("A1_PROJECT", str(Path.home() / "datavol-1" / "CorpPolicyLM")))
 A1_BASE = Path(_env("A1_BASE", str(A1_PROJECT / "models" / "cpt")))
 A1_ADAPTER = Path(_env("A1_ADAPTER", str(A1_PROJECT / "models" / "adapters" / "adapter_B")))
-# Pre-quantised 4-bit (bitsandbytes NF4) copies of the official instruct models: ~5.5 GB each
-# instead of ~15 GB, so they fit the lab disk and GPU. Weights = the official models.
-GENERATOR = _env("GENERATOR", "unsloth/Qwen2.5-7B-Instruct-bnb-4bit")
-GENERATOR_NAME = _env("GENERATOR_NAME", "Qwen2.5-7B-Instruct (4-bit NF4)")
-JUDGE = _env("JUDGE", "unsloth/Meta-Llama-3.1-8B-Instruct-bnb-4bit")
-JUDGE_NAME = _env("JUDGE_NAME", "Llama-3.1-8B-Instruct (4-bit NF4)")
+# Pre-quantised 4-bit (bitsandbytes NF4) copies of the official instruct models.
+# The lab server has 4.9 GB of home disk and no room for a bigger volume, so the 3B members of the
+# families named in the brief are used (~2 GB each, one cached at a time). On a server with more disk:
+#   GENERATOR=unsloth/Qwen2.5-7B-Instruct-bnb-4bit  JUDGE=unsloth/Meta-Llama-3.1-8B-Instruct-bnb-4bit
+GENERATOR = _env("GENERATOR", "unsloth/Qwen2.5-3B-Instruct-bnb-4bit")
+GENERATOR_NAME = _env("GENERATOR_NAME", "Qwen2.5-3B-Instruct (4-bit NF4)")
+JUDGE = _env("JUDGE", "unsloth/Llama-3.2-3B-Instruct-bnb-4bit")
+JUDGE_NAME = _env("JUDGE_NAME", "Llama-3.2-3B-Instruct (4-bit NF4)")
 GEN_MAX_NEW_TOKENS = _env("GEN_MAX_NEW_TOKENS", 200, int)
 JUDGE_MAX_NEW_TOKENS = _env("JUDGE_MAX_NEW_TOKENS", 200, int)
 NOT_FOUND = "Not found in the documents"

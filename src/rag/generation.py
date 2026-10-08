@@ -123,6 +123,52 @@ def chat(model, tok, system, user, max_new_tokens=config.GEN_MAX_NEW_TOKENS):
     return tok.decode(out[0, ids["input_ids"].shape[1]:], skip_special_tokens=True).strip()
 
 
+# ----------------------------------------------------------------------------- judge decoding
+JUDGE_LABELS = {"CORRECT": ["correct", "partly correct", "wrong"], "SUPPORTED": ["yes", "no"]}
+
+
+def _first_token_logprob(model, tok, context, option):
+    """Log-probability of the first token of ' option' after `context`."""
+    ctx = tok(context, add_special_tokens=False, return_tensors="pt")["input_ids"].to(model.device)
+    first = tok(" " + option, add_special_tokens=False)["input_ids"][0]
+    logits = model(input_ids=ctx).logits[0, -1].float()
+    return torch.log_softmax(logits, -1)[first].item()
+
+
+def _continue_line(model, tok, context, max_new_tokens=80):
+    ids = tok(context, add_special_tokens=False, return_tensors="pt").to(model.device)
+    out = model.generate(**ids, max_new_tokens=max_new_tokens, do_sample=False, temperature=None, top_p=None,
+                         top_k=None, pad_token_id=tok.pad_token_id or tok.eos_token_id)
+    return tok.decode(out[0, ids["input_ids"].shape[1]:], skip_special_tokens=True).strip().split("\n")[0].strip()
+
+
+@torch.no_grad()
+def judge(model, tok, user_prompt, system=None):
+    """Runs the judge prompt with constrained, greedy decoding of the fixed output format.
+
+    Small instruct models often leave the label fields empty (seen with Llama-3.2-3B), so the
+    assistant reply is built line by line: for CORRECT and SUPPORTED the judge picks the allowed
+    label with the highest probability (argmax = temperature 0); REASON and UNSUPPORTED are then
+    generated greedily, conditioned on the chosen labels. Returns the parsed verdict and raw text.
+    """
+    system = system or JUDGE_SYSTEM
+    messages = [{"role": "system", "content": system}, {"role": "user", "content": user_prompt}]
+    context = tok.apply_chat_template(messages, add_generation_prompt=True, tokenize=False)
+    reply = ""
+    verdict = {}
+    for field, options in JUDGE_LABELS.items():
+        prefix = context + reply + f"{field}:"
+        scores = {o: _first_token_logprob(model, tok, prefix, o) for o in options}
+        verdict[field.lower()] = max(scores, key=scores.get)
+        reply += f"{field}: {verdict[field.lower()]}\n"
+    reply += "REASON:"
+    verdict["reason"] = _continue_line(model, tok, context + reply)
+    reply += f" {verdict['reason']}\nUNSUPPORTED:"
+    verdict["unsupported quote"] = _continue_line(model, tok, context + reply)
+    reply += f" {verdict['unsupported quote']}"
+    return verdict, reply
+
+
 # ----------------------------------------------------------------------------- answer checks
 def cites(answer):
     return sorted({int(n) for n in re.findall(r"\[(\d+)\]", answer)})
@@ -155,6 +201,33 @@ def free_gb(path=None):
     path = Path(path or hf_cache_dir())
     path.mkdir(parents=True, exist_ok=True)
     return shutil.disk_usage(path).free / 2**30
+
+
+def cached(repo):
+    return (hf_cache_dir() / ("models--" + repo.replace("/", "--"))).exists()
+
+
+def repo_size_gb(repo, default=6.0):
+    """Download size of a Hub model (weights + tokenizer); `default` if the Hub cannot be asked."""
+    try:
+        from huggingface_hub import HfApi
+        info = HfApi().model_info(repo, files_metadata=True)
+        return sum((f.size or 0) for f in info.siblings) / 2**30
+    except Exception:
+        return default
+
+
+def make_room(repo, drop=None, margin_gb=0.5):
+    """Checks there is space to download `repo`; if not and `drop` is given, deletes `drop` from the
+    cache first. Raises SystemExit with a clear message if it still does not fit."""
+    if cached(repo):
+        return
+    need = repo_size_gb(repo) + margin_gb
+    if free_gb() < need and drop and delete_cached(drop):
+        print(f"Removed {drop} from the cache to make room.")
+    if free_gb() < need:
+        raise SystemExit(f"{repo} needs ~{need:.1f} GiB but only {free_gb():.1f} GiB is free in {hf_cache_dir()}. "
+                         "Free space or point HF_HOME to a bigger volume, then re-run.")
 
 
 def delete_cached(repo):
